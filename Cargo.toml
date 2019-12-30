@@ -1,0 +1,26 @@
+[package]
+name = "bodhi-cli"
+description = "bodhi CLI client based on bodhi-rs"
+license = "MIT OR Apache-2.0"
+
+version = "0.0.1"
+edition = "2018"
+
+authors = ["Fabio Valentini <decathorpe@gmail.com>"]
+readme = "README.md"
+categories = ["command-line-utilities"]
+keywords = ["fedora", "bodhi", "CLI", "client"]
+repository = "https://github.com/ironthree/bodhi-rs-cli"
+
+[[bin]]
+name = "bodhi-cli"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "^2.33.0", features = ["yaml"] }
+bodhi = "^0.0.8"
+
+[profile.release]
+codegen-units = 1
+lto = true
+
