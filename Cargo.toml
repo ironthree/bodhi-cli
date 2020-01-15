@@ -17,8 +17,15 @@ name = "bodhi-cli"
 path = "src/main.rs"
 
 [dependencies]
-clap = { version = "^2.33.0", features = ["yaml"] }
-bodhi = "^0.0.8"
+bodhi = "^0.3.0"
+chrono = "^0.4.10"
+dirs = "^2.0.2"
+rpassword = "^4.0.3"
+serde = { version = "^1.0.104", features = ["derive"] }
+serde_json = "^1.0.44"
+structopt = "^0.3.7"
+term_size = "^0.2.1"
+toml = "^0.5.5"
 
 [profile.release]
 codegen-units = 1
