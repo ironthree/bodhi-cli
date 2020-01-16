@@ -1,0 +1,298 @@
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+#[structopt(setting = structopt::clap::AppSettings::DisableHelpSubcommand)]
+pub struct BaseCommand {
+    /// Use the fedora staging instance of bodhi
+    #[structopt(long)]
+    pub staging: bool,
+    /// Manually specify bodhi server URL
+    #[structopt(long, requires("login_url"), conflicts_with("staging"))]
+    pub bodhi_url: Option<String>,
+    /// Manually specify OpenID endpoint URL
+    #[structopt(long, requires("bodhi_url"), conflicts_with("staging"))]
+    pub login_url: Option<String>,
+    #[structopt(subcommand)]
+    pub subcommand: BodhiCommand,
+}
+
+#[derive(Debug, StructOpt)]
+pub enum BodhiCommand {
+    /// Comment on an update
+    Comment {
+        /// ID of the update to comment on
+        #[structopt(long)]
+        update: String,
+        /// Publicly visible comment text
+        #[structopt(long)]
+        text: String,
+        /// Karma submitted with this comment (-1/0/+1)
+        #[structopt(long)]
+        karma: Option<String>,
+    },
+    /// Query bodhi for information about a compose
+    ComposeInfo {
+        /// release string
+        release: String,
+        /// request string ("stable" or "testing")
+        request: String,
+        /// Output format (plain, JSON)
+        #[structopt(long)]
+        format: Option<String>,
+    },
+    /// Query bodhi for running composes
+    ComposeList {
+        /// Output format (plain, JSON)
+        #[structopt(long)]
+        format: Option<String>,
+    },
+    /// Create a new buildroot override
+    CreateOverride {
+        /// NVR of the override
+        nvr: String,
+        /// duration it will still be active
+        #[structopt(long)]
+        duration: u32,
+        /// publicly visible notes
+        #[structopt(long)]
+        notes: String,
+    },
+    /// Create a new update
+    CreateUpdate {
+        /// Push to stable based on karma
+        #[structopt(long)]
+        autokarma: Option<bool>,
+        /// Push to stable based on time
+        #[structopt(long)]
+        autotime: Option<bool>,
+        /// Bugs fixed by this update
+        #[structopt(long)]
+        bugs: Option<Vec<u32>>,
+        /// Builds that are part of this update
+        #[structopt(long, conflicts_with = "from_tag")]
+        builds: Option<Vec<String>>,
+        /// Close bugs when pushed to stable
+        #[structopt(long)]
+        close_bugs: Option<bool>,
+        /// Override displayed update name
+        #[structopt(long)]
+        display_name: Option<String>,
+        /// Koji tag to create this update from
+        #[structopt(long, conflicts_with = "builds")]
+        from_tag: Option<String>,
+        /// Publicly visible update notes
+        #[structopt(long)]
+        notes: String,
+        /// List of required taskotron tests
+        #[structopt(long)]
+        requirements: Option<Vec<String>>,
+        /// Update severity
+        #[structopt(long)]
+        severity: Option<String>,
+        /// Days until it can be pushed to stable
+        #[structopt(long)]
+        stable_days: Option<u32>,
+        /// Karma until it can be pushed to stable
+        #[structopt(long)]
+        stable_karma: Option<i32>,
+        /// Logout / reboot suggestion
+        #[structopt(long)]
+        suggestion: Option<String>,
+        /// Karma until it will be unpushed
+        #[structopt(long)]
+        unstable_karma: Option<i32>,
+        /// Type of the update
+        #[structopt(long, name = "type")]
+        update_type: Option<String>,
+    },
+    /// Edit an existing buildroot override
+    EditOverride {
+        /// NVR of the override
+        nvr: String,
+        /// duration it will still be active
+        #[structopt(long)]
+        duration: u32,
+        /// publicly visible notes
+        #[structopt(long)]
+        notes: String,
+    },
+    /// Edit an existing update
+    EditUpdate {
+        /// Alias of the edited update
+        alias: String,
+        /// Add bugs to this update
+        #[structopt(long)]
+        add_bugs: Option<Vec<u32>>,
+        /// Add builds to this update
+        #[structopt(long)]
+        add_builds: Option<Vec<String>>,
+        /// Push to stable based on karma
+        #[structopt(long)]
+        autokarma: Option<bool>,
+        /// Push to stable based on time
+        #[structopt(long)]
+        autotime: Option<bool>,
+        /// Close bugs when pushed to stable
+        #[structopt(long)]
+        close_bugs: Option<bool>,
+        /// Override displayed update name
+        #[structopt(long)]
+        display_name: Option<String>,
+        /// Publicly visible update notes
+        #[structopt(long)]
+        notes: Option<String>,
+        /// Remove bugs from this update
+        #[structopt(long)]
+        remove_bugs: Option<Vec<u32>>,
+        /// Remove builds from this update
+        #[structopt(long)]
+        remove_builds: Option<Vec<String>>,
+        /// List of required taskotron tests
+        #[structopt(long)]
+        requirements: Option<Vec<String>>,
+        /// Update severity
+        #[structopt(long)]
+        severity: Option<String>,
+        /// Days until it can be pushed to stable
+        #[structopt(long)]
+        stable_days: Option<u32>,
+        /// Karma until it can be pushed to stable
+        #[structopt(long)]
+        stable_karma: Option<i32>,
+        /// Logout / reboot suggestion
+        #[structopt(long)]
+        suggestion: Option<String>,
+        /// Karma until it will be unpushed
+        #[structopt(long)]
+        unstable_karma: Option<i32>,
+        /// Type of the update
+        #[structopt(long, name = "type")]
+        update_type: Option<String>,
+    },
+    /// Expire an existing buildroot override
+    ExpireOverride {
+        /// NVR of the override
+        nvr: String,
+    },
+    /// Query bodhi for buildroot overrides
+    QueryOverrides {
+        /// Query for this build / these builds
+        #[structopt(long)]
+        builds: Option<Vec<String>>,
+        /// Query for expired overrides
+        #[structopt(long)]
+        expired: Option<bool>,
+        /// Output format (plain, JSON)
+        #[structopt(long)]
+        format: Option<String>,
+        /// Query for this release / these releases
+        #[structopt(long)]
+        releases: Option<Vec<String>>,
+        /// Query for overrides submitted by these users
+        #[structopt(long)]
+        users: Option<Vec<String>>,
+    },
+    /// Query bodhi for updates
+    QueryUpdates {
+        /// update with this alias
+        #[structopt(long)]
+        alias: Option<String>,
+        /// updates approved before this date
+        #[structopt(long)]
+        approved_before: Option<String>,
+        /// updates approved after this date
+        #[structopt(long)]
+        approved_since: Option<String>,
+        /// updates associated with these bugs
+        #[structopt(long)]
+        bugs: Option<Vec<u32>>,
+        /// updates associated with these builds
+        #[structopt(long)]
+        builds: Option<Vec<String>>,
+        /// updates for critpath packages
+        #[structopt(long)]
+        critpath: Option<bool>,
+        /// RPM / module / flatpak updates
+        #[structopt(long)]
+        content_type: Option<String>,
+        /// Output format (plain, JSON)
+        #[structopt(long)]
+        format: Option<String>,
+        /// locked updates
+        #[structopt(long)]
+        locked: Option<bool>,
+        /// updates modified before this date
+        #[structopt(long)]
+        modified_before: Option<String>,
+        /// updates modified after this date
+        #[structopt(long)]
+        modified_since: Option<String>,
+        /// updates for these packages
+        #[structopt(long)]
+        packages: Option<Vec<String>>,
+        /// pushed updates
+        #[structopt(long)]
+        pushed: Option<bool>,
+        /// updates pushed before this date
+        #[structopt(long)]
+        pushed_before: Option<String>,
+        /// updates pushed after this date
+        #[structopt(long)]
+        pushed_since: Option<String>,
+        /// updates for these releases
+        #[structopt(long)]
+        releases: Option<Vec<String>>,
+        /// updates with this status request
+        #[structopt(long)]
+        request: Option<String>,
+        /// updates with this severity
+        #[structopt(long)]
+        severity: Option<String>,
+        /// updates with this status
+        #[structopt(long)]
+        status: Option<String>,
+        /// updates submitted before this date
+        #[structopt(long)]
+        submitted_before: Option<String>,
+        /// updates submitted after this date
+        #[structopt(long)]
+        submitted_since: Option<String>,
+        /// updates with logout / reboot suggestion
+        #[structopt(long)]
+        suggestion: Option<String>,
+        /// updates with this type
+        #[structopt(name = "type", long)]
+        update_type: Option<String>,
+        /// updates submitted by this user
+        #[structopt(long)]
+        users: Option<Vec<String>>,
+    },
+    /// Query bodhi for information about a release
+    ReleaseInfo {
+        /// ID of the release
+        release: String,
+        /// Output format (plain, JSON)
+        #[structopt(long)]
+        format: Option<String>,
+    },
+    /// Query bodhi for active releases
+    ReleaseList {
+        /// Output format (plain, JSON)
+        #[structopt(long)]
+        format: Option<String>,
+    },
+    /// Submit an update status request
+    UpdateRequest {
+        /// ID of the update
+        alias: String,
+        /// (obsolete, revoke, stable, testing, unpush)
+        request: String,
+    },
+    /// Waive an update's test results
+    WaiveTests {
+        /// ID of the update
+        alias: String,
+        /// comment submitted with the waiver
+        comment: String,
+    },
+}
