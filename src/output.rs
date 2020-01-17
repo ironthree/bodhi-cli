@@ -2,9 +2,11 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fmt::Display;
 use std::io::Write;
+use std::str::FromStr;
 
 use serde::Serialize;
 
+#[derive(Debug)]
 pub enum Format {
     JSON,
     Plain,
@@ -22,10 +24,11 @@ impl TryFrom<&str> for Format {
     }
 }
 
-pub fn op_str_to_format(op_string: Option<&String>) -> Result<Format, String> {
-    match op_string {
-        Some(string) => Format::try_from(string.as_str()),
-        None => Ok(Format::Plain),
+impl FromStr for Format {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Format, String> {
+        TryFrom::try_from(s)
     }
 }
 

@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use bodhi::*;
 use structopt::StructOpt;
 
@@ -53,9 +51,6 @@ fn main() -> Result<(), String> {
 
     match args.subcommand {
         BodhiCommand::Comment { update, text, karma } => {
-            // convert all input values
-            let karma = op_str_to_op_karma(karma.as_ref())?;
-
             let update: Update = match bodhi.query(UpdateIDQuery::new(&update)) {
                 Ok(update) => match update {
                     Some(update) => update,
@@ -83,29 +78,22 @@ fn main() -> Result<(), String> {
             request,
             format,
         } => {
-            // convert all input values
-            let release = FedoraRelease::try_from(release.as_str())?;
-            let request = str_to_compose_request(request.as_str())?;
-            let format = op_str_to_format(format.as_ref())?;
-
             let result: Option<Compose> = match bodhi.query(ComposeReleaseRequestQuery::new(release, request)) {
                 Ok(compose) => compose,
                 Err(error) => return Err(error.to_string()),
             };
 
-            pretty_output(result.as_ref(), &format!("{}/{}", release, request), "No running compose found for", format)?;
+            pretty_output(result.as_ref(), &format!("{}/{}", release, request), "No running compose found for", format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
         BodhiCommand::ComposeList { format } => {
-            let format = op_str_to_format(format.as_ref())?;
-
             let result: Vec<Compose> = match bodhi.query(ComposeQuery::new()) {
                 Ok(composes) => composes,
                 Err(error) => return Err(error.to_string()),
             };
 
-            pretty_outputs(&result, format)?;
+            pretty_outputs(&result, format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
@@ -146,11 +134,6 @@ fn main() -> Result<(), String> {
                 Some(builds) => Some(builds.iter().map(|b| b.as_str()).collect()),
                 None => None,
             };
-
-            // convert all input values
-            let severity = op_str_to_op_severity(severity.as_ref())?;
-            let suggestion = op_str_to_op_update_suggestion(suggestion.as_ref())?;
-            let update_type = op_str_to_op_update_type(update_type.as_ref())?;
 
             let mut builder = match (&builds, &from_tag) {
                 (Some(_), Some(_)) => unreachable!(),
@@ -259,11 +242,6 @@ fn main() -> Result<(), String> {
             unstable_karma,
             update_type,
         } => {
-            // convert all input values
-            let severity = op_str_to_op_severity(severity.as_ref())?;
-            let suggestion = op_str_to_op_update_suggestion(suggestion.as_ref())?;
-            let update_type = op_str_to_op_update_type(update_type.as_ref())?;
-
             let update = query_update(&bodhi, &alias)?;
             let mut editor = UpdateEditor::from_update(&update);
 
@@ -375,8 +353,7 @@ fn main() -> Result<(), String> {
             releases,
             users,
         } => {
-            let format = op_str_to_format(format.as_ref())?;
-            let releases = op_str_vec_to_op_release_vec(releases.as_ref())?;
+            let format = format.unwrap_or(Format::Plain);
 
             let mut query = OverrideQuery::new();
 
@@ -441,26 +418,7 @@ fn main() -> Result<(), String> {
             update_type,
             users,
         } => {
-            let format = op_str_to_format(format.as_ref())?;
-
-            // convert all input values
-            let approved_before = op_str_to_op_date(approved_before.as_ref())?;
-            let approved_since = op_str_to_op_date(approved_since.as_ref())?;
-            let modified_before = op_str_to_op_date(modified_before.as_ref())?;
-            let modified_since = op_str_to_op_date(modified_since.as_ref())?;
-            let pushed_before = op_str_to_op_date(pushed_before.as_ref())?;
-            let pushed_since = op_str_to_op_date(pushed_since.as_ref())?;
-            let submitted_before = op_str_to_op_date(submitted_before.as_ref())?;
-            let submitted_since = op_str_to_op_date(submitted_since.as_ref())?;
-
-            let content_type = op_str_to_op_content_type(content_type.as_ref())?;
-            let request = op_str_to_op_update_request(request.as_ref())?;
-            let severity = op_str_to_op_severity(severity.as_ref())?;
-            let status = op_str_to_op_update_status(status.as_ref())?;
-            let suggestion = op_str_to_op_update_suggestion(suggestion.as_ref())?;
-            let update_type = op_str_to_op_update_type(update_type.as_ref())?;
-
-            let releases = op_str_vec_to_op_release_vec(releases.as_ref())?;
+            let format = format.unwrap_or(Format::Plain);
 
             let mut query = UpdateQuery::new();
 
@@ -582,35 +540,26 @@ fn main() -> Result<(), String> {
             Ok(())
         },
         BodhiCommand::ReleaseInfo { release, format } => {
-            FedoraRelease::try_from(release.as_str())?;
-
-            let format = op_str_to_format(format.as_ref())?;
-
             let result: Option<Release> = match bodhi.query(ReleaseNameQuery::new(&release)) {
                 Ok(compose) => compose,
                 Err(_) => return Err(String::from("Failed to query releases.")),
             };
 
-            pretty_output(result.as_ref(), &release, "No release found with name", format)?;
+            pretty_output(result.as_ref(), &release, "No release found with name", format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
         BodhiCommand::ReleaseList { format } => {
-            let format = op_str_to_format(format.as_ref())?;
-
             let result: Vec<Release> = match bodhi.query(ReleaseQuery::new()) {
                 Ok(releases) => releases,
                 Err(error) => return Err(error.to_string()),
             };
 
-            pretty_outputs(&result, format)?;
+            pretty_outputs(&result, format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
         BodhiCommand::UpdateRequest { alias, request } => {
-            // convert all input values
-            let request = op_str_to_op_update_request(Some(request).as_ref())?.unwrap();
-
             let update: Update = query_update(&bodhi, &alias)?;
             let editor = UpdateStatusRequester::from_update(&update, request);
 

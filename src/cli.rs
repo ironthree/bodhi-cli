@@ -1,4 +1,7 @@
+use bodhi::*;
 use structopt::StructOpt;
+
+use crate::Format;
 
 #[derive(Debug, StructOpt)]
 #[structopt(setting = structopt::clap::AppSettings::DisableHelpSubcommand)]
@@ -28,23 +31,23 @@ pub enum BodhiCommand {
         text: String,
         /// Karma submitted with this comment (-1/0/+1)
         #[structopt(long)]
-        karma: Option<String>,
+        karma: Option<Karma>,
     },
     /// Query bodhi for information about a compose
     ComposeInfo {
         /// release string
-        release: String,
+        release: FedoraRelease,
         /// request string ("stable" or "testing")
-        request: String,
+        request: ComposeRequest,
         /// Output format (plain, JSON)
         #[structopt(long)]
-        format: Option<String>,
+        format: Option<Format>,
     },
     /// Query bodhi for running composes
     ComposeList {
         /// Output format (plain, JSON)
         #[structopt(long)]
-        format: Option<String>,
+        format: Option<Format>,
     },
     /// Create a new buildroot override
     CreateOverride {
@@ -88,7 +91,7 @@ pub enum BodhiCommand {
         requirements: Option<Vec<String>>,
         /// Update severity
         #[structopt(long)]
-        severity: Option<String>,
+        severity: Option<UpdateSeverity>,
         /// Days until it can be pushed to stable
         #[structopt(long)]
         stable_days: Option<u32>,
@@ -97,13 +100,13 @@ pub enum BodhiCommand {
         stable_karma: Option<i32>,
         /// Logout / reboot suggestion
         #[structopt(long)]
-        suggestion: Option<String>,
+        suggestion: Option<UpdateSuggestion>,
         /// Karma until it will be unpushed
         #[structopt(long)]
         unstable_karma: Option<i32>,
         /// Type of the update
         #[structopt(long, name = "type")]
-        update_type: Option<String>,
+        update_type: Option<UpdateType>,
     },
     /// Edit an existing buildroot override
     EditOverride {
@@ -152,7 +155,7 @@ pub enum BodhiCommand {
         requirements: Option<Vec<String>>,
         /// Update severity
         #[structopt(long)]
-        severity: Option<String>,
+        severity: Option<UpdateSeverity>,
         /// Days until it can be pushed to stable
         #[structopt(long)]
         stable_days: Option<u32>,
@@ -161,13 +164,13 @@ pub enum BodhiCommand {
         stable_karma: Option<i32>,
         /// Logout / reboot suggestion
         #[structopt(long)]
-        suggestion: Option<String>,
+        suggestion: Option<UpdateSuggestion>,
         /// Karma until it will be unpushed
         #[structopt(long)]
         unstable_karma: Option<i32>,
         /// Type of the update
         #[structopt(long, name = "type")]
-        update_type: Option<String>,
+        update_type: Option<UpdateType>,
     },
     /// Expire an existing buildroot override
     ExpireOverride {
@@ -184,10 +187,10 @@ pub enum BodhiCommand {
         expired: Option<bool>,
         /// Output format (plain, JSON)
         #[structopt(long)]
-        format: Option<String>,
+        format: Option<Format>,
         /// Query for this release / these releases
         #[structopt(long)]
-        releases: Option<Vec<String>>,
+        releases: Option<Vec<FedoraRelease>>,
         /// Query for overrides submitted by these users
         #[structopt(long)]
         users: Option<Vec<String>>,
@@ -199,10 +202,10 @@ pub enum BodhiCommand {
         alias: Option<String>,
         /// updates approved before this date
         #[structopt(long)]
-        approved_before: Option<String>,
+        approved_before: Option<BodhiDate>,
         /// updates approved after this date
         #[structopt(long)]
-        approved_since: Option<String>,
+        approved_since: Option<BodhiDate>,
         /// updates associated with these bugs
         #[structopt(long)]
         bugs: Option<Vec<u32>>,
@@ -214,19 +217,19 @@ pub enum BodhiCommand {
         critpath: Option<bool>,
         /// RPM / module / flatpak updates
         #[structopt(long)]
-        content_type: Option<String>,
+        content_type: Option<ContentType>,
         /// Output format (plain, JSON)
         #[structopt(long)]
-        format: Option<String>,
+        format: Option<Format>,
         /// locked updates
         #[structopt(long)]
         locked: Option<bool>,
         /// updates modified before this date
         #[structopt(long)]
-        modified_before: Option<String>,
+        modified_before: Option<BodhiDate>,
         /// updates modified after this date
         #[structopt(long)]
-        modified_since: Option<String>,
+        modified_since: Option<BodhiDate>,
         /// updates for these packages
         #[structopt(long)]
         packages: Option<Vec<String>>,
@@ -235,34 +238,34 @@ pub enum BodhiCommand {
         pushed: Option<bool>,
         /// updates pushed before this date
         #[structopt(long)]
-        pushed_before: Option<String>,
+        pushed_before: Option<BodhiDate>,
         /// updates pushed after this date
         #[structopt(long)]
-        pushed_since: Option<String>,
+        pushed_since: Option<BodhiDate>,
         /// updates for these releases
         #[structopt(long)]
-        releases: Option<Vec<String>>,
+        releases: Option<Vec<FedoraRelease>>,
         /// updates with this status request
         #[structopt(long)]
-        request: Option<String>,
+        request: Option<UpdateRequest>,
         /// updates with this severity
         #[structopt(long)]
-        severity: Option<String>,
+        severity: Option<UpdateSeverity>,
         /// updates with this status
         #[structopt(long)]
-        status: Option<String>,
+        status: Option<UpdateStatus>,
         /// updates submitted before this date
         #[structopt(long)]
-        submitted_before: Option<String>,
+        submitted_before: Option<BodhiDate>,
         /// updates submitted after this date
         #[structopt(long)]
-        submitted_since: Option<String>,
+        submitted_since: Option<BodhiDate>,
         /// updates with logout / reboot suggestion
         #[structopt(long)]
-        suggestion: Option<String>,
+        suggestion: Option<UpdateSuggestion>,
         /// updates with this type
         #[structopt(name = "type", long)]
-        update_type: Option<String>,
+        update_type: Option<UpdateType>,
         /// updates submitted by this user
         #[structopt(long)]
         users: Option<Vec<String>>,
@@ -273,20 +276,20 @@ pub enum BodhiCommand {
         release: String,
         /// Output format (plain, JSON)
         #[structopt(long)]
-        format: Option<String>,
+        format: Option<Format>,
     },
     /// Query bodhi for active releases
     ReleaseList {
         /// Output format (plain, JSON)
         #[structopt(long)]
-        format: Option<String>,
+        format: Option<Format>,
     },
     /// Submit an update status request
     UpdateRequest {
         /// ID of the update
         alias: String,
         /// (obsolete, revoke, stable, testing, unpush)
-        request: String,
+        request: UpdateRequest,
     },
     /// Waive an update's test results
     WaiveTests {
