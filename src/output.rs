@@ -65,7 +65,10 @@ pub fn print_server_msgs(caveats: &[HashMap<String, String>]) {
     }
 }
 
-pub fn json_pretty_print<T>(input: &T) -> Result<(), String> where T: Serialize {
+pub fn json_pretty_print<T>(input: &T) -> Result<(), String>
+where
+    T: Serialize,
+{
     let pretty = match serde_json::to_string_pretty(input) {
         Ok(string) => string,
         Err(_) => return Err(String::from("Failed to format output as JSON.")),
@@ -75,7 +78,15 @@ pub fn json_pretty_print<T>(input: &T) -> Result<(), String> where T: Serialize 
     Ok(())
 }
 
-pub fn pretty_output<T>(input: Option<&T>, identifier: &str, not_found_message: &str, format: Format) -> Result<(), String> where T: Serialize + Display {
+pub fn pretty_output<T>(
+    input: Option<&T>,
+    identifier: &str,
+    not_found_message: &str,
+    format: Format,
+) -> Result<(), String>
+where
+    T: Serialize + Display,
+{
     match format {
         Format::Plain => match input {
             Some(result) => println!("{}", result),
@@ -91,7 +102,10 @@ pub fn pretty_output<T>(input: Option<&T>, identifier: &str, not_found_message: 
     Ok(())
 }
 
-pub fn pretty_outputs<T>(input: &Vec<T>, format: Format) -> Result<(), String> where T: Serialize + Display {
+pub fn pretty_outputs<T>(input: &Vec<T>, format: Format) -> Result<(), String>
+where
+    T: Serialize + Display,
+{
     match format {
         Format::Plain => {
             for item in input {

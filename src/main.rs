@@ -83,7 +83,12 @@ fn main() -> Result<(), String> {
                 Err(error) => return Err(error.to_string()),
             };
 
-            pretty_output(result.as_ref(), &format!("{}/{}", release, request), "No running compose found for", format.unwrap_or(Format::Plain))?;
+            pretty_output(
+                result.as_ref(),
+                &format!("{}/{}", release, request),
+                "No running compose found for",
+                format.unwrap_or(Format::Plain),
+            )?;
 
             Ok(())
         },
@@ -122,6 +127,8 @@ fn main() -> Result<(), String> {
             display_name,
             from_tag,
             notes,
+            require_bugs,
+            require_testcases,
             requirements,
             severity,
             stable_days,
@@ -162,6 +169,14 @@ fn main() -> Result<(), String> {
 
             if let Some(display_name) = display_name {
                 builder = builder.title(display_name);
+            };
+
+            if let Some(require_bugs) = require_bugs {
+                builder = builder.require_bugs(require_bugs);
+            };
+
+            if let Some(require_testcases) = require_testcases {
+                builder = builder.require_testcases(require_testcases);
             };
 
             if let Some(requirements) = &requirements {
@@ -545,7 +560,12 @@ fn main() -> Result<(), String> {
                 Err(_) => return Err(String::from("Failed to query releases.")),
             };
 
-            pretty_output(result.as_ref(), &release, "No release found with name", format.unwrap_or(Format::Plain))?;
+            pretty_output(
+                result.as_ref(),
+                &release,
+                "No release found with name",
+                format.unwrap_or(Format::Plain),
+            )?;
 
             Ok(())
         },

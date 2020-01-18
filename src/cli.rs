@@ -86,6 +86,12 @@ pub enum BodhiCommand {
         /// Publicly visible update notes
         #[structopt(long)]
         notes: String,
+        /// Require bug feedback for karma to count
+        #[structopt(long)]
+        require_bugs: Option<bool>,
+        /// Require test case feedback for karma to count
+        #[structopt(long)]
+        require_testcases: Option<bool>,
         /// List of required taskotron tests
         #[structopt(long)]
         requirements: Option<Vec<String>>,
