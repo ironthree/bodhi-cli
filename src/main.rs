@@ -168,7 +168,7 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(display_name) = display_name {
-                builder = builder.title(display_name);
+                builder = builder.display_name(display_name);
             };
 
             if let Some(require_bugs) = require_bugs {
@@ -285,7 +285,7 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(display_name) = &display_name {
-                editor = editor.set_title(display_name);
+                editor = editor.display_name(display_name);
             };
 
             if let Some(notes) = &notes {

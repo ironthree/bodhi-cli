@@ -17,7 +17,7 @@ name = "bodhi-cli"
 path = "src/main.rs"
 
 [dependencies]
-bodhi = "^0.4.0"
+bodhi = "^0.5.0"
 chrono = "^0.4.10"
 dirs = "^2.0.2"
 rpassword = "^4.0.3"

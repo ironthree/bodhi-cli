@@ -106,9 +106,9 @@ dependencies = [
 
 [[package]]
 name = "bodhi"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c39c07459a031835ab84b3430f2dcc6b9146f05983b7194c3096afe1fefa5fd"
+checksum = "e9ae9f49d3e32f4308bb50b0d2b91f7aada8cea74e951c447f59dc5539891620"
 dependencies = [
  "chrono",
  "failure",
@@ -124,7 +124,7 @@ dependencies = [
 
 [[package]]
 name = "bodhi-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "bodhi",
  "chrono",
@@ -1158,9 +1158,9 @@ dependencies = [
 
 [[package]]
 name = "rpassword"
-version = "4.0.3"
+version = "4.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d59f0e97173c514b9036cd450c195a6483ba81055c6fa0f1bff3ab563f47d44a"
+checksum = "648a7e04c56d74fc845c489a4bacc8fa72765f271240af4d17772a8de8d55838"
 dependencies = [
  "libc",
  "winapi 0.3.8",
@@ -1321,19 +1321,20 @@ checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
 name = "structopt"
-version = "0.3.7"
+version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "884ae79d6aad1e738f4a70dff314203fd498490a63ebc4d03ea83323c40b7b72"
+checksum = "df136b42d76b1fbea72e2ab3057343977b04b4a2e00836c3c7c0673829572713"
 dependencies = [
  "clap",
+ "lazy_static",
  "structopt-derive",
 ]
 
 [[package]]
 name = "structopt-derive"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a97f829a34a0a9d5b353a881025a23b8c9fd09d46be6045df6b22920dbd7a93"
+checksum = "fd50a87d2f7b8958055f3e73a963d78feaccca3836767a9069844e34b5b03c0a"
 dependencies = [
  "heck",
  "proc-macro-error",
