@@ -316,7 +316,6 @@ fn main() -> Result<(), String> {
                 editor = editor.severity(severity);
             };
 
-
             if let Some(stable_days) = stable_days {
                 editor = editor.stable_days(stable_days);
             };
@@ -367,36 +366,49 @@ fn main() -> Result<(), String> {
             format,
             releases,
             users,
+            force,
         } => {
             let format = format.unwrap_or(Format::Plain);
 
             let mut query = OverrideQuery::new();
+            let mut long_running = true;
 
             if let Some(builds) = &builds {
                 for build in builds {
                     query = query.builds(build);
                 }
+                long_running = false;
             };
 
             if let Some(expired) = expired {
                 query = query.expired(expired);
+                long_running = false;
             };
 
             if let Some(releases) = releases {
                 for release in releases {
                     query = query.releases(release);
                 }
+                long_running = false;
             };
 
             if let Some(users) = &users {
                 for user in users {
                     query = query.users(user);
                 }
+                long_running = false;
             };
 
             if let Format::Plain = format {
                 query = query.callback(progress_bar)
             };
+
+            if long_running && !force {
+                eprintln!("Querying overrides without filters takes a *long* time. This is probably not");
+                eprintln!("what you want to do. To do it anyway, use the '--force' flag.");
+
+                return Ok(());
+            }
 
             let result: Vec<Override> = match bodhi.query(query) {
                 Ok(overrides) => overrides,
@@ -432,118 +444,148 @@ fn main() -> Result<(), String> {
             suggestion,
             update_type,
             users,
+            force,
         } => {
             let format = format.unwrap_or(Format::Plain);
 
             let mut query = UpdateQuery::new();
+            let mut long_running = true;
 
             if let Some(alias) = &alias {
                 query = query.aliases(alias);
+                long_running = false;
             };
 
             if let Some(approved_before) = &approved_before {
                 query = query.approved_before(approved_before);
+                long_running = false;
             };
 
             if let Some(approved_since) = &approved_since {
                 query = query.approved_since(approved_since);
+                long_running = false;
             };
 
             if let Some(bugs) = bugs {
                 for bug in bugs {
                     query = query.bugs(bug);
                 }
+                long_running = false;
             };
 
             if let Some(builds) = &builds {
                 for build in builds {
                     query = query.builds(build);
                 }
+                long_running = false;
             };
 
             if let Some(critpath) = critpath {
                 query = query.critpath(critpath);
+                long_running = false;
             };
 
             if let Some(content_type) = content_type {
                 query = query.content_type(content_type);
+                long_running = false;
             };
 
             if let Some(locked) = locked {
                 query = query.locked(locked);
+                long_running = false;
             };
 
             if let Some(modified_before) = &modified_before {
                 query = query.modified_before(modified_before);
+                long_running = false;
             };
 
             if let Some(modified_since) = &modified_since {
                 query = query.modified_since(modified_since);
+                long_running = false;
             };
 
             if let Some(packages) = &packages {
                 for package in packages {
                     query = query.packages(package);
                 }
+                long_running = false;
             };
 
             if let Some(pushed) = pushed {
                 query = query.pushed(pushed);
+                long_running = false;
             };
-
 
             if let Some(pushed_before) = &pushed_before {
                 query = query.pushed_before(pushed_before);
+                long_running = false;
             };
-
 
             if let Some(pushed_since) = &pushed_since {
                 query = query.pushed_since(pushed_since);
+                long_running = false;
             };
 
             if let Some(releases) = releases {
                 for release in releases {
                     query = query.releases(release);
                 }
+                long_running = false;
             };
 
             if let Some(request) = request {
                 query = query.request(request);
+                long_running = false;
             };
 
             if let Some(severity) = severity {
                 query = query.severity(severity);
+                long_running = false;
             };
 
             if let Some(status) = status {
                 query = query.status(status);
+                long_running = false;
             };
 
             if let Some(submitted_before) = &submitted_before {
                 query = query.submitted_before(submitted_before);
+                long_running = false;
             };
 
             if let Some(submitted_since) = &submitted_since {
                 query = query.submitted_since(submitted_since);
+                long_running = false;
             };
 
             if let Some(suggestion) = suggestion {
                 query = query.suggest(suggestion);
+                long_running = false;
             }
 
             if let Some(update_type) = update_type {
                 query = query.update_type(update_type);
+                long_running = false;
             };
 
             if let Some(users) = &users {
                 for user in users {
                     query = query.users(user);
                 }
+                long_running = false;
             };
 
             if let Format::Plain = format {
                 query = query.callback(progress_bar)
             };
+
+            if long_running && !force {
+                eprintln!("Querying updates without filters takes a *long* time. This is probably not");
+                eprintln!("what you want to do. To do it anyway, use the '--force' flag.");
+
+                return Ok(());
+            }
 
             let result: Vec<Update> = match bodhi.query(query) {
                 Ok(updates) => updates,

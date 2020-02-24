@@ -200,6 +200,9 @@ pub enum BodhiCommand {
         /// Query for overrides submitted by these users
         #[structopt(long)]
         users: Option<Vec<String>>,
+        /// Force long-running queries
+        #[structopt(long, short)]
+        force: bool,
     },
     /// Query bodhi for updates
     QueryUpdates {
@@ -275,6 +278,9 @@ pub enum BodhiCommand {
         /// updates submitted by this user
         #[structopt(long)]
         users: Option<Vec<String>>,
+        /// Force long-running queries
+        #[structopt(long, short)]
+        force: bool,
     },
     /// Query bodhi for information about a release
     ReleaseInfo {
