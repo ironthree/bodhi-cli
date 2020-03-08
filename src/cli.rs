@@ -15,10 +15,17 @@ pub struct BaseCommand {
     /// Manually specify OpenID endpoint URL
     #[structopt(long, requires("bodhi_url"), conflicts_with("staging"))]
     pub login_url: Option<String>,
+    /// Don't store password in session keyring
+    #[structopt(long, short = "n")]
+    pub no_store_password: bool,
+    /// Ignore password stored in session keyring
+    #[structopt(long, short = "k")]
+    pub ignore_keyring: bool,
     #[structopt(subcommand)]
     pub subcommand: BodhiCommand,
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, StructOpt)]
 pub enum BodhiCommand {
     /// Comment on an update
