@@ -30,7 +30,7 @@ fn get_store_password(clear: bool) -> Result<String, String> {
 
     let store = |password: &str, replace: bool| {
         if let Err(error) = collection.create_item(
-            "fedora-update-feedback",
+            "bodhi-cli",
             attributes.clone(),
             &password.as_bytes(),
             replace,
