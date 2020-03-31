@@ -10,7 +10,7 @@ authors = ["Fabio Valentini <decathorpe@gmail.com>"]
 readme = "README.md"
 categories = ["command-line-utilities"]
 keywords = ["fedora", "bodhi", "CLI", "client"]
-repository = "https://github.com/ironthree/bodhi-rs-cli"
+repository = "https://pagure.io/ironthree/bodhi-cli"
 
 [[bin]]
 name = "bodhi-cli"
