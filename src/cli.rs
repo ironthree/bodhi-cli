@@ -3,8 +3,20 @@ use structopt::StructOpt;
 
 use crate::Format;
 
+/// bodhi-cli expects a configuration file at ~/.config/fedora.toml, with at
+/// least the following contents:
+///
+/// """
+/// [FAS]
+/// username = "USERNAME"
+/// """
+///
+/// This username is used for logging in with bodhi for authenticated requests,
+/// and for determining which updates, overrides, and comments the user has
+/// created themselves.
 #[derive(Debug, StructOpt)]
 #[structopt(setting = structopt::clap::AppSettings::DisableHelpSubcommand)]
+#[structopt(verbatim_doc_comment)]
 pub struct BaseCommand {
     /// Use the fedora staging instance of bodhi
     #[structopt(long)]
