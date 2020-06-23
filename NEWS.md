@@ -1,3 +1,9 @@
+# Release 0.3.3 "Bump2()" (June 22, 2020)
+
+Changes:
+
+- bump `bodhi` dependency to `^0.6` for bodhi 5.4.0 server support
+
 # Release 0.3.1 "Patch()" (Mar. 09, 2020)
 
 Incremental improvements:
