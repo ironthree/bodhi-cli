@@ -1,11 +1,24 @@
+#![warn(clippy::unwrap_used)]
+
 use bodhi::*;
 use structopt::StructOpt;
 
-use bodhi_cli::*;
+pub mod cli;
+pub use cli::*;
+
+pub mod config;
+pub use config::*;
+
+pub mod output;
+pub use output::*;
+
+pub mod query;
+pub use query::*;
 
 /// This function prompts the user for their FAS password.
 fn read_password() -> String {
-    rpassword::prompt_password_stdout("FAS Password: ").unwrap()
+    rpassword::prompt_password_stdout("FAS Password: ")
+        .expect("Failed to read from stdout.")
 }
 
 /// This function asks for and stores the password in the session keyring.

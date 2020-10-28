@@ -51,7 +51,7 @@ pub fn progress_bar(p: u32, ps: u32) {
     );
 
     print!("\r{}", &line);
-    std::io::stdout().flush().unwrap();
+    std::io::stdout().flush().expect("Failed to flush stdio.");
 }
 
 pub fn print_server_msgs(caveats: &[HashMap<String, String>]) {
@@ -65,7 +65,7 @@ pub fn print_server_msgs(caveats: &[HashMap<String, String>]) {
     }
 }
 
-pub fn json_pretty_print<T>(input: &T) -> Result<(), String>
+pub fn json_pretty_print<T: ?Sized>(input: &T) -> Result<(), String>
 where
     T: Serialize,
 {
@@ -102,7 +102,7 @@ where
     Ok(())
 }
 
-pub fn pretty_outputs<T>(input: &Vec<T>, format: Format) -> Result<(), String>
+pub fn pretty_outputs<T>(input: &[T], format: Format) -> Result<(), String>
 where
     T: Serialize + Display,
 {
