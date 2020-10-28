@@ -1,3 +1,10 @@
+# Release 0.4.0 "Drop()" (October 28, 2020)
+
+Breaking Changes:
+
+- refactored code into a binary-only crate
+- dropped unused `bodhi_cli` library component
+
 # Release 0.3.3 "Bump2()" (June 22, 2020)
 
 Changes:

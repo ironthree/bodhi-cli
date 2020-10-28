@@ -3,14 +3,14 @@ name = "bodhi-cli"
 description = "bodhi CLI client based on bodhi-rs"
 license = "MIT OR Apache-2.0"
 
-version = "0.3.3"
+version = "0.4.0"
 edition = "2018"
 
 authors = ["Fabio Valentini <decathorpe@gmail.com>"]
 readme = "README.md"
 categories = ["command-line-utilities"]
 keywords = ["fedora", "bodhi", "CLI", "client"]
-repository = "https://pagure.io/ironthree/bodhi-cli"
+repository = "https://github.com/ironthree/bodhi-cli"
 
 [[bin]]
 name = "bodhi-cli"
@@ -31,4 +31,5 @@ toml = "^0.5.5"
 [profile.release]
 codegen-units = 1
 lto = true
+opt-level = 3
 
