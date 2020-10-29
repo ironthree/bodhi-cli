@@ -3,7 +3,7 @@ name = "bodhi-cli"
 description = "bodhi CLI client based on bodhi-rs"
 license = "MIT OR Apache-2.0"
 
-version = "0.4.0"
+version = "0.4.1"
 edition = "2018"
 
 authors = ["Fabio Valentini <decathorpe@gmail.com>"]

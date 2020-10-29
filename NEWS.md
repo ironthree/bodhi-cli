@@ -1,3 +1,9 @@
+# Release 0.4.1 "Exclude()" (October 29, 2020)
+
+This release only contains non-code changes:
+
+- exclude both the `.github` folder and `rustfmt.toml` from published crates
+
 # Release 0.4.0 "Drop()" (October 28, 2020)
 
 Breaking Changes:
