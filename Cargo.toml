@@ -8,6 +8,7 @@ edition = "2018"
 
 authors = ["Fabio Valentini <decathorpe@gmail.com>"]
 readme = "README.md"
+exclude = ["/.github/", "/rustfmt.toml"]
 categories = ["command-line-utilities"]
 keywords = ["fedora", "bodhi", "CLI", "client"]
 repository = "https://github.com/ironthree/bodhi-cli"
