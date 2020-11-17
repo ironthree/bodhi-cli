@@ -17,8 +17,7 @@ pub use query::*;
 
 /// This function prompts the user for their FAS password.
 fn read_password() -> String {
-    rpassword::prompt_password_stdout("FAS Password: ")
-        .expect("Failed to read from stdout.")
+    rpassword::prompt_password_stdout("FAS Password: ").expect("Failed to read from console.")
 }
 
 /// This function asks for and stores the password in the session keyring.
@@ -478,9 +477,7 @@ fn main() -> Result<(), String> {
             let mut long_running = true;
 
             if let Some(builds) = &builds {
-                for build in builds {
-                    query = query.builds(build);
-                }
+                query = query.builds(builds.iter().map(|s| s.as_str()).collect());
                 long_running = false;
             };
 
@@ -490,16 +487,12 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(releases) = releases {
-                for release in releases {
-                    query = query.releases(release);
-                }
+                query = query.releases(releases);
                 long_running = false;
             };
 
             if let Some(users) = &users {
-                for user in users {
-                    query = query.users(user);
-                }
+                query = query.users(users.iter().map(|s| s.as_str()).collect());
                 long_running = false;
             };
 
@@ -556,7 +549,7 @@ fn main() -> Result<(), String> {
             let mut long_running = true;
 
             if let Some(alias) = &alias {
-                query = query.aliases(alias);
+                query = query.aliases(vec![alias]);
                 long_running = false;
             };
 
@@ -571,16 +564,12 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(bugs) = bugs {
-                for bug in bugs {
-                    query = query.bugs(bug);
-                }
+                query = query.bugs(bugs);
                 long_running = false;
             };
 
             if let Some(builds) = &builds {
-                for build in builds {
-                    query = query.builds(build);
-                }
+                query = query.builds(builds.iter().map(|s| s.as_str()).collect());
                 long_running = false;
             };
 
@@ -610,9 +599,7 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(packages) = &packages {
-                for package in packages {
-                    query = query.packages(package);
-                }
+                query = query.packages(packages.iter().map(|s| s.as_str()).collect());
                 long_running = false;
             };
 
@@ -632,9 +619,7 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(releases) = releases {
-                for release in releases {
-                    query = query.releases(release);
-                }
+                query = query.releases(releases);
                 long_running = false;
             };
 
@@ -674,9 +659,7 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(users) = &users {
-                for user in users {
-                    query = query.users(user);
-                }
+                query = query.users(users.iter().map(|s| s.as_str()).collect());
                 long_running = false;
             };
 

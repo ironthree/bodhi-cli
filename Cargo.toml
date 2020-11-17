@@ -3,7 +3,7 @@ name = "bodhi-cli"
 description = "bodhi CLI client based on bodhi-rs"
 license = "MIT OR Apache-2.0"
 
-version = "0.4.1"
+version = "1.0.0-dev"
 edition = "2018"
 
 authors = ["Fabio Valentini <decathorpe@gmail.com>"]
@@ -18,7 +18,7 @@ name = "bodhi-cli"
 path = "src/main.rs"
 
 [dependencies]
-bodhi = "^0.6"
+bodhi = "^1.0"
 chrono = "^0.4.10"
 dirs = "^2.0.2"
 rpassword = "^4.0.3"
