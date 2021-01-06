@@ -1,5 +1,7 @@
 #![warn(clippy::unwrap_used)]
 
+use std::collections::HashMap;
+
 use bodhi::*;
 use structopt::StructOpt;
 
@@ -38,7 +40,8 @@ fn get_store_password(clear: bool) -> Result<String, String> {
         },
     };
 
-    let attributes = vec![("bodhi-cli", "FAS Password")];
+    let mut attributes = HashMap::new();
+    attributes.insert("bodhi-cli", "FAS Password");
 
     let store = |password: &str, replace: bool| {
         if let Err(error) = collection.create_item(
