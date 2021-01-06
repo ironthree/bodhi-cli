@@ -1,3 +1,17 @@
+# Release 1.0.1 "Better Secretz" (January 06, 2021)
+
+Internal changes:
+
+- update `secret-service` to `2.0` (with the new `zbus` backend)
+
+# Release 1.0.0 "Up This Grade" (November 30, 2020)
+
+Internal changes:
+
+- update `bodhi` to `1.0`
+- update `rpassword` to `5.0`
+- update `dirs` to `3.0.1`
+
 # Release 0.4.1 "Exclude()" (October 29, 2020)
 
 This release only contains non-code changes:
