@@ -243,10 +243,9 @@ fn main() -> Result<(), String> {
             unstable_karma,
             update_type,
         } => {
-            let builds: Option<Vec<&str>> = match &builds {
-                Some(builds) => Some(builds.iter().map(|b| b.as_str()).collect()),
-                None => None,
-            };
+            let builds: Option<Vec<&str>> = builds
+                .as_ref()
+                .map(|builds| builds.iter().map(|b| b.as_str()).collect());
 
             let mut builder = match (&builds, &from_tag) {
                 (Some(_), Some(_)) => unreachable!(),
@@ -410,10 +409,7 @@ fn main() -> Result<(), String> {
                 }
             };
 
-            let requirements = match &requirements {
-                Some(reqs) => Some(reqs.join(",")),
-                None => None,
-            };
+            let requirements = requirements.as_ref().map(|reqs| reqs.join(","));
             if let Some(requirements) = &requirements {
                 editor = editor.requirements(&requirements);
             }
