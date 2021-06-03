@@ -1,3 +1,9 @@
+# Release 1.0.2 "Move Along" (June 03, 2021)
+
+Internal changes:
+
+- fix some warnings raised by newer versions of clippy
+
 # Release 1.0.1 "Better Secretz" (January 06, 2021)
 
 Internal changes:
