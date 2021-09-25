@@ -1,3 +1,10 @@
+# Release 1.1.0 "Cookie Monster" (September 25, 2021)
+
+Changes:
+
+- use `bodhi ^1.1` and `fedora ^1.1` for better and faster session handling
+- implement code improvements suggested by clippy
+
 # Release 1.0.2 "Move Along" (June 03, 2021)
 
 Internal changes:
