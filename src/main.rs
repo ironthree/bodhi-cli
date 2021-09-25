@@ -47,7 +47,7 @@ fn get_store_password(clear: bool) -> Result<String, String> {
         if let Err(error) = collection.create_item(
             "bodhi-cli",
             attributes.clone(),
-            &password.as_bytes(),
+            password.as_bytes(),
             replace,
             "password",
         ) {
@@ -249,8 +249,8 @@ fn main() -> Result<(), String> {
 
             let mut builder = match (&builds, &from_tag) {
                 (Some(_), Some(_)) => unreachable!(),
-                (Some(builds), None) => UpdateBuilder::from_builds(&builds, &notes),
-                (None, Some(tag)) => UpdateBuilder::from_tag(&tag, &notes),
+                (Some(builds), None) => UpdateBuilder::from_builds(builds, &notes),
+                (None, Some(tag)) => UpdateBuilder::from_tag(tag, &notes),
                 (None, None) => return Err(String::from("Neither builds nor koji tag specified.")),
             };
 
@@ -411,7 +411,7 @@ fn main() -> Result<(), String> {
 
             let requirements = requirements.as_ref().map(|reqs| reqs.join(","));
             if let Some(requirements) = &requirements {
-                editor = editor.requirements(&requirements);
+                editor = editor.requirements(requirements);
             }
 
             if let Some(severity) = severity {
