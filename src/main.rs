@@ -103,25 +103,10 @@ fn get_store_password(clear: bool) -> Result<String, String> {
 }
 
 #[allow(clippy::cognitive_complexity)]
-fn main() -> Result<(), String> {
+#[tokio::main]
+async fn main() -> Result<(), String> {
     let args: BaseCommand = BaseCommand::from_args();
-
-    let authenticated = match &args.subcommand {
-        BodhiCommand::Comment { .. } => true,
-        BodhiCommand::ComposeInfo { .. } => false,
-        BodhiCommand::ComposeList { .. } => false,
-        BodhiCommand::CreateOverride { .. } => true,
-        BodhiCommand::CreateUpdate { .. } => true,
-        BodhiCommand::EditOverride { .. } => true,
-        BodhiCommand::EditUpdate { .. } => true,
-        BodhiCommand::ExpireOverride { .. } => true,
-        BodhiCommand::QueryOverrides { .. } => false,
-        BodhiCommand::QueryUpdates { .. } => false,
-        BodhiCommand::ReleaseInfo { .. } => false,
-        BodhiCommand::ReleaseList { .. } => false,
-        BodhiCommand::UpdateRequest { .. } => true,
-        BodhiCommand::WaiveTests { .. } => true,
-    };
+    let authenticated = args.authenticated();
 
     let config = get_config()?;
 
@@ -144,12 +129,12 @@ fn main() -> Result<(), String> {
 
         builder = builder.authentication(&config.fas.username, &password);
 
-        match builder.build() {
+        match builder.build().await {
             Ok(bodhi) => bodhi,
             Err(error) => return Err(error.to_string()),
         }
     } else {
-        match builder.build() {
+        match builder.build().await {
             Ok(bodhi) => bodhi,
             Err(error) => return Err(error.to_string()),
         }
@@ -157,11 +142,8 @@ fn main() -> Result<(), String> {
 
     match args.subcommand {
         BodhiCommand::Comment { update, text, karma } => {
-            let update: Update = match bodhi.query(UpdateIDQuery::new(&update)) {
-                Ok(update) => match update {
-                    Some(update) => update,
-                    None => return Err(String::from("Update not found.")),
-                },
+            let update: Update = match bodhi.request(&UpdateIDQuery::new(&update)).await {
+                Ok(update) => update,
                 Err(error) => return Err(error.to_string()),
             };
 
@@ -171,7 +153,7 @@ fn main() -> Result<(), String> {
                 commenter = commenter.karma(karma);
             }
 
-            match bodhi.create(&commenter) {
+            match bodhi.request(&commenter).await {
                 Ok(_) => {
                     println!("Comment created.");
                     Ok(())
@@ -184,22 +166,17 @@ fn main() -> Result<(), String> {
             request,
             format,
         } => {
-            let result: Option<Compose> = match bodhi.query(ComposeReleaseRequestQuery::new(release, request)) {
+            let result: Compose = match bodhi.request(&ComposeReleaseRequestQuery::new(&release, request)).await {
                 Ok(compose) => compose,
                 Err(error) => return Err(error.to_string()),
             };
 
-            pretty_output(
-                result.as_ref(),
-                &format!("{}/{}", release, request),
-                "No running compose found for",
-                format.unwrap_or(Format::Plain),
-            )?;
+            pretty_output(&result, format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
         BodhiCommand::ComposeList { format } => {
-            let result: Vec<Compose> = match bodhi.query(ComposeQuery::new()) {
+            let result: Vec<Compose> = match bodhi.request(&ComposeQuery::new()).await {
                 Ok(composes) => composes,
                 Err(error) => return Err(error.to_string()),
             };
@@ -212,9 +189,9 @@ fn main() -> Result<(), String> {
             let current_date = chrono::Utc::now();
             let expiration_date = (current_date + chrono::Duration::days(duration as i64)).into();
 
-            let builder = OverrideBuilder::new(&nvr, &notes, &expiration_date);
+            let builder = OverrideCreator::new(&nvr, &notes, &expiration_date);
 
-            let result: NewOverride = match bodhi.create(&builder) {
+            let result: NewOverride = match bodhi.request(&builder).await {
                 Ok(o) => o,
                 Err(error) => return Err(error.to_string()),
             };
@@ -249,8 +226,8 @@ fn main() -> Result<(), String> {
 
             let mut builder = match (&builds, &from_tag) {
                 (Some(_), Some(_)) => unreachable!(),
-                (Some(builds), None) => UpdateBuilder::from_builds(builds, &notes),
-                (None, Some(tag)) => UpdateBuilder::from_tag(tag, &notes),
+                (Some(builds), None) => UpdateCreator::from_builds(builds, &notes),
+                (None, Some(tag)) => UpdateCreator::from_tag(tag, &notes),
                 (None, None) => return Err(String::from("Neither builds nor koji tag specified.")),
             };
 
@@ -263,9 +240,7 @@ fn main() -> Result<(), String> {
             };
 
             if let Some(bugs) = bugs {
-                for bug in bugs {
-                    builder = builder.bugs(bug);
-                }
+                builder = builder.bugs(bugs);
             };
 
             if let Some(close_bugs) = close_bugs {
@@ -314,7 +289,7 @@ fn main() -> Result<(), String> {
                 builder = builder.update_type(update_type);
             };
 
-            let result: NewUpdate = match bodhi.create(&builder) {
+            let result: NewUpdate = match bodhi.request(&builder).await {
                 Ok(value) => value,
                 Err(error) => return Err(error.to_string()),
             };
@@ -328,12 +303,12 @@ fn main() -> Result<(), String> {
             let current_date = chrono::Utc::now();
             let expiration_date = (current_date + chrono::Duration::days(duration as i64)).into();
 
-            let over_ride = query_override(&bodhi, &nvr)?;
+            let over_ride = query_override(&bodhi, &nvr).await?;
             let editor = OverrideEditor::from_override(&over_ride)
                 .expiration_date(&expiration_date)
                 .notes(&notes);
 
-            let result: EditedOverride = match bodhi.edit(&editor) {
+            let result: EditedOverride = match bodhi.request(&editor).await {
                 Ok(value) => value,
                 Err(error) => return Err(error.to_string()),
             };
@@ -362,7 +337,7 @@ fn main() -> Result<(), String> {
             unstable_karma,
             update_type,
         } => {
-            let update = query_update(&bodhi, &alias)?;
+            let update = query_update(&bodhi, &alias).await?;
             let mut editor = UpdateEditor::from_update(&update);
 
             if let Some(add_bugs) = add_bugs {
@@ -438,7 +413,7 @@ fn main() -> Result<(), String> {
                 editor = editor.update_type(update_type);
             }
 
-            let result: EditedUpdate = match bodhi.edit(&editor) {
+            let result: EditedUpdate = match bodhi.request(&editor).await {
                 Ok(value) => value,
                 Err(error) => return Err(error.to_string()),
             };
@@ -449,10 +424,10 @@ fn main() -> Result<(), String> {
             Ok(())
         },
         BodhiCommand::ExpireOverride { nvr } => {
-            let over_ride = query_override(&bodhi, &nvr)?;
+            let over_ride = query_override(&bodhi, &nvr).await?;
             let editor = OverrideEditor::from_override(&over_ride).expired(true);
 
-            let result: EditedOverride = match bodhi.edit(&editor) {
+            let result: EditedOverride = match bodhi.request(&editor).await {
                 Ok(value) => value,
                 Err(error) => return Err(error.to_string()),
             };
@@ -485,8 +460,8 @@ fn main() -> Result<(), String> {
                 long_running = false;
             };
 
-            if let Some(releases) = releases {
-                query = query.releases(releases);
+            if let Some(releases) = &releases {
+                query = query.releases(releases.iter().collect());
                 long_running = false;
             };
 
@@ -506,7 +481,7 @@ fn main() -> Result<(), String> {
                 return Ok(());
             }
 
-            let result: Vec<Override> = match bodhi.query(query) {
+            let result: Vec<Override> = match bodhi.paginated_request(&query).await {
                 Ok(overrides) => overrides,
                 Err(error) => return Err(error.to_string()),
             };
@@ -617,8 +592,8 @@ fn main() -> Result<(), String> {
                 long_running = false;
             };
 
-            if let Some(releases) = releases {
-                query = query.releases(releases);
+            if let Some(releases) = &releases {
+                query = query.releases(releases.iter().collect());
                 long_running = false;
             };
 
@@ -673,7 +648,7 @@ fn main() -> Result<(), String> {
                 return Ok(());
             }
 
-            let result: Vec<Update> = match bodhi.query(query) {
+            let result: Vec<Update> = match bodhi.paginated_request(&query).await {
                 Ok(updates) => updates,
                 Err(error) => return Err(error.to_string()),
             };
@@ -683,22 +658,17 @@ fn main() -> Result<(), String> {
             Ok(())
         },
         BodhiCommand::ReleaseInfo { release, format } => {
-            let result: Option<Release> = match bodhi.query(ReleaseNameQuery::new(&release)) {
-                Ok(compose) => compose,
+            let result: Release = match bodhi.request(&ReleaseNameQuery::new(&release)).await {
+                Ok(release) => release,
                 Err(_) => return Err(String::from("Failed to query releases.")),
             };
 
-            pretty_output(
-                result.as_ref(),
-                &release,
-                "No release found with name",
-                format.unwrap_or(Format::Plain),
-            )?;
+            pretty_output(&result, format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
         BodhiCommand::ReleaseList { format } => {
-            let result: Vec<Release> = match bodhi.query(ReleaseQuery::new()) {
+            let result: Vec<Release> = match bodhi.paginated_request(&ReleaseQuery::new()).await {
                 Ok(releases) => releases,
                 Err(error) => return Err(error.to_string()),
             };
@@ -708,10 +678,10 @@ fn main() -> Result<(), String> {
             Ok(())
         },
         BodhiCommand::UpdateRequest { alias, request } => {
-            let update: Update = query_update(&bodhi, &alias)?;
+            let update: Update = query_update(&bodhi, &alias).await?;
             let editor = UpdateStatusRequester::from_update(&update, request);
 
-            let result: Update = match bodhi.edit(&editor) {
+            let result: Update = match bodhi.request(&editor).await {
                 Ok(value) => value,
                 Err(error) => return Err(error.to_string()),
             };
@@ -720,11 +690,15 @@ fn main() -> Result<(), String> {
 
             Ok(())
         },
-        BodhiCommand::WaiveTests { alias, comment } => {
-            let update = query_update(&bodhi, &alias)?;
-            let editor = UpdateTestResultWaiver::from_update(&update, &comment);
+        BodhiCommand::WaiveTests { alias, comment, tests } => {
+            let update = query_update(&bodhi, &alias).await?;
+            let mut editor = UpdateTestResultWaiver::from_update(&update, &comment);
 
-            let result: Update = match bodhi.edit(&editor) {
+            if let Some(tests) = &tests {
+                editor = editor.tests(tests)
+            }
+
+            let result: Update = match bodhi.request(&editor).await {
                 Ok(value) => value,
                 Err(error) => return Err(error.to_string()),
             };

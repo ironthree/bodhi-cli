@@ -78,25 +78,13 @@ where
     Ok(())
 }
 
-pub fn pretty_output<T>(
-    input: Option<&T>,
-    identifier: &str,
-    not_found_message: &str,
-    format: Format,
-) -> Result<(), String>
+pub fn pretty_output<T>(input: &T, format: Format) -> Result<(), String>
 where
     T: Serialize + Display,
 {
     match format {
-        Format::Plain => match input {
-            Some(result) => println!("{}", result),
-            None => println!("{}: {}", not_found_message, identifier),
-        },
-        Format::JSON => {
-            if let Some(result) = input {
-                json_pretty_print(result)?;
-            }
-        },
+        Format::Plain => println!("{}", input),
+        Format::JSON => json_pretty_print(input)?,
     }
 
     Ok(())

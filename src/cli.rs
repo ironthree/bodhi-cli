@@ -111,7 +111,7 @@ pub enum BodhiCommand {
         /// Require test case feedback for karma to count
         #[structopt(long)]
         require_testcases: Option<bool>,
-        /// List of required taskotron tests
+        /// List of required gating tests
         #[structopt(long)]
         requirements: Option<Vec<String>>,
         /// Update severity
@@ -175,7 +175,7 @@ pub enum BodhiCommand {
         /// Remove builds from this update
         #[structopt(long)]
         remove_builds: Option<Vec<String>>,
-        /// List of required taskotron tests
+        /// List of required gating tests
         #[structopt(long)]
         requirements: Option<Vec<String>>,
         /// Update severity
@@ -328,5 +328,31 @@ pub enum BodhiCommand {
         alias: String,
         /// comment submitted with the waiver
         comment: String,
+        /// test results to be waived (default: empty / all)
+        #[structopt(long)]
+        tests: Option<Vec<String>>,
     },
+}
+
+impl BaseCommand {
+    pub fn authenticated(&self) -> bool {
+        use BodhiCommand::*;
+
+        match self.subcommand {
+            Comment { .. } => true,
+            ComposeInfo { .. } => false,
+            ComposeList { .. } => false,
+            CreateOverride { .. } => true,
+            CreateUpdate { .. } => true,
+            EditOverride { .. } => true,
+            EditUpdate { .. } => true,
+            ExpireOverride { .. } => true,
+            QueryOverrides { .. } => false,
+            QueryUpdates { .. } => false,
+            ReleaseInfo { .. } => false,
+            ReleaseList { .. } => false,
+            UpdateRequest { .. } => true,
+            WaiveTests { .. } => true,
+        }
+    }
 }
