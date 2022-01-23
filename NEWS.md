@@ -1,3 +1,13 @@
+# Release 2.0.0-beta.1 "Modern Times" (January 23, 2022)
+
+Changes:
+
+- ported to `fedora ^2.0.0-beta.1` and `bodhi ^2.0.0-beta.1`
+- use `tokio` as async runtime
+- add CLI flags for specifying test results in the `waive-tests` command
+- remove CLI flags for querying updates based on `date_approved`
+  (this value is never used or written, and is always `None` on bodhi servers)
+
 # Release 1.1.0 "Cookie Monster" (September 25, 2021)
 
 Changes:
