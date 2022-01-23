@@ -1,6 +1,5 @@
-use std::fs::read_to_string;
-
 use serde::Deserialize;
+use tokio::fs::read_to_string;
 
 #[derive(Debug, Deserialize)]
 pub struct FedoraConfig {
@@ -13,7 +12,7 @@ pub struct FASConfig {
     pub username: String,
 }
 
-pub fn get_config() -> Result<FedoraConfig, String> {
+pub async fn get_config() -> Result<FedoraConfig, String> {
     let home = match dirs::home_dir() {
         Some(path) => path,
         None => {
@@ -23,7 +22,7 @@ pub fn get_config() -> Result<FedoraConfig, String> {
 
     let config_path = home.join(".config/fedora.toml");
 
-    let config_str = match read_to_string(&config_path) {
+    let config_str = match read_to_string(&config_path).await {
         Ok(string) => string,
         Err(_) => {
             return Err(String::from(

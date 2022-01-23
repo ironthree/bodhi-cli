@@ -108,12 +108,12 @@ async fn main() -> Result<(), String> {
     let args: BaseCommand = BaseCommand::from_args();
     let authenticated = args.authenticated();
 
-    let config = get_config()?;
+    let config = get_config().await?;
 
     let mut builder = match (&args.staging, &args.bodhi_url, &args.login_url) {
-        (false, None, None) => BodhiServiceBuilder::default(),
-        (true, None, None) => BodhiServiceBuilder::staging(),
-        (false, Some(url), Some(login_url)) => BodhiServiceBuilder::custom(url.to_owned(), login_url.to_owned()),
+        (false, None, None) => BodhiClientBuilder::default(),
+        (true, None, None) => BodhiClientBuilder::staging(),
+        (false, Some(url), Some(login_url)) => BodhiClientBuilder::custom(url.to_owned(), login_url.to_owned()),
         _ => unreachable!(),
     };
 
@@ -239,7 +239,7 @@ async fn main() -> Result<(), String> {
                 builder = builder.autotime(autotime);
             };
 
-            if let Some(bugs) = bugs {
+            if let Some(bugs) = &bugs {
                 builder = builder.bugs(bugs);
             };
 
@@ -247,7 +247,7 @@ async fn main() -> Result<(), String> {
                 builder = builder.close_bugs(close_bugs);
             };
 
-            if let Some(display_name) = display_name {
+            if let Some(display_name) = &display_name {
                 builder = builder.display_name(display_name);
             };
 
@@ -259,9 +259,10 @@ async fn main() -> Result<(), String> {
                 builder = builder.require_testcases(require_testcases);
             };
 
-            if let Some(requirements) = &requirements {
+            let requirements_string = requirements.map(|some| some.join(","));
+            if let Some(requirements) = &requirements_string {
                 if !requirements.is_empty() {
-                    builder = builder.requirements(requirements.join(","));
+                    builder = builder.requirements(requirements);
                 };
             };
 
@@ -447,11 +448,14 @@ async fn main() -> Result<(), String> {
         } => {
             let format = format.unwrap_or(Format::Plain);
 
+            let build_refs: Option<Vec<&str>> = builds.as_ref().map(|bs| bs.iter().map(|b| b.as_str()).collect());
+            let user_refs: Option<Vec<&str>> = users.as_ref().map(|us| us.iter().map(|u| u.as_str()).collect());
+
             let mut query = OverrideQuery::new();
             let mut long_running = true;
 
-            if let Some(builds) = &builds {
-                query = query.builds(builds.iter().map(|s| s.as_str()).collect());
+            if let Some(build_refs) = &build_refs {
+                query = query.builds(build_refs);
                 long_running = false;
             };
 
@@ -461,12 +465,12 @@ async fn main() -> Result<(), String> {
             };
 
             if let Some(releases) = &releases {
-                query = query.releases(releases.iter().collect());
+                query = query.releases(releases);
                 long_running = false;
             };
 
-            if let Some(users) = &users {
-                query = query.users(users.iter().map(|s| s.as_str()).collect());
+            if let Some(user_refs) = &user_refs {
+                query = query.users(user_refs);
                 long_running = false;
             };
 
@@ -492,8 +496,6 @@ async fn main() -> Result<(), String> {
         },
         BodhiCommand::QueryUpdates {
             alias,
-            approved_before,
-            approved_since,
             bugs,
             builds,
             critpath,
@@ -519,31 +521,26 @@ async fn main() -> Result<(), String> {
         } => {
             let format = format.unwrap_or(Format::Plain);
 
+            let aliases = alias.as_ref().map(|alias| vec![alias.as_str()]);
+            let build_refs: Option<Vec<&str>> = builds.as_ref().map(|bs| bs.iter().map(|b| b.as_str()).collect());
+            let pkg_refs: Option<Vec<&str>> = packages.as_ref().map(|ps| ps.iter().map(|p| p.as_str()).collect());
+            let user_refs: Option<Vec<&str>> = users.as_ref().map(|us| us.iter().map(|u| u.as_str()).collect());
+
             let mut query = UpdateQuery::new();
             let mut long_running = true;
 
-            if let Some(alias) = &alias {
-                query = query.aliases(vec![alias]);
+            if let Some(aliases) = &aliases {
+                query = query.aliases(aliases);
                 long_running = false;
             };
 
-            if let Some(approved_before) = &approved_before {
-                query = query.approved_before(approved_before);
-                long_running = false;
-            };
-
-            if let Some(approved_since) = &approved_since {
-                query = query.approved_since(approved_since);
-                long_running = false;
-            };
-
-            if let Some(bugs) = bugs {
+            if let Some(bugs) = &bugs {
                 query = query.bugs(bugs);
                 long_running = false;
             };
 
-            if let Some(builds) = &builds {
-                query = query.builds(builds.iter().map(|s| s.as_str()).collect());
+            if let Some(build_refs) = &build_refs {
+                query = query.builds(build_refs);
                 long_running = false;
             };
 
@@ -572,8 +569,8 @@ async fn main() -> Result<(), String> {
                 long_running = false;
             };
 
-            if let Some(packages) = &packages {
-                query = query.packages(packages.iter().map(|s| s.as_str()).collect());
+            if let Some(pkg_refs) = &pkg_refs {
+                query = query.packages(pkg_refs);
                 long_running = false;
             };
 
@@ -593,7 +590,7 @@ async fn main() -> Result<(), String> {
             };
 
             if let Some(releases) = &releases {
-                query = query.releases(releases.iter().collect());
+                query = query.releases(releases);
                 long_running = false;
             };
 
@@ -632,8 +629,8 @@ async fn main() -> Result<(), String> {
                 long_running = false;
             };
 
-            if let Some(users) = &users {
-                query = query.users(users.iter().map(|s| s.as_str()).collect());
+            if let Some(user_refs) = &user_refs {
+                query = query.users(user_refs);
                 long_running = false;
             };
 
@@ -692,10 +689,13 @@ async fn main() -> Result<(), String> {
         },
         BodhiCommand::WaiveTests { alias, comment, tests } => {
             let update = query_update(&bodhi, &alias).await?;
+
+            let test_refs: Option<Vec<&str>> = tests.as_ref().map(|ts| ts.iter().map(|t| t.as_str()).collect());
+
             let mut editor = UpdateTestResultWaiver::from_update(&update, &comment);
 
-            if let Some(tests) = &tests {
-                editor = editor.tests(tests)
+            if let Some(test_refs) = &test_refs {
+                editor = editor.tests(test_refs)
             }
 
             let result: Update = match bodhi.request(&editor).await {

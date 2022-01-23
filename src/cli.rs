@@ -228,12 +228,6 @@ pub enum BodhiCommand {
         /// update with this alias
         #[structopt(long)]
         alias: Option<String>,
-        /// updates approved before this date
-        #[structopt(long)]
-        approved_before: Option<BodhiDate>,
-        /// updates approved after this date
-        #[structopt(long)]
-        approved_since: Option<BodhiDate>,
         /// updates associated with these bugs
         #[structopt(long)]
         bugs: Option<Vec<u32>>,
