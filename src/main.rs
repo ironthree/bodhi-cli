@@ -201,6 +201,33 @@ async fn main() -> Result<(), String> {
 
             Ok(())
         },
+        BodhiCommand::CreateUpdateOverride { alias, duration, notes } => {
+            let update = query_update(&bodhi, &alias).await?;
+
+            let current_date = chrono::Utc::now();
+            let expiration_date = (current_date + chrono::Duration::days(duration as i64)).into();
+
+            let mut result = Ok(());
+
+            for build in &update.builds {
+                let creator = OverrideCreator::new(&build.nvr, &notes, &expiration_date);
+
+                match bodhi.request(&creator).await {
+                    Ok(result) => {
+                        println!(" - successfully created override for: {}", &result.over_ride.nvr);
+                        print_server_msgs(&result.caveats);
+                        continue;
+                    },
+                    Err(error) => {
+                        println!(" - failed to create override for {}, aborting.", &build.nvr);
+                        result = Err(format!("{}", error));
+                        break;
+                    },
+                }
+            }
+
+            result
+        },
         BodhiCommand::CreateUpdate {
             autokarma,
             autotime,

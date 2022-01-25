@@ -72,7 +72,18 @@ pub enum BodhiCommand {
     CreateOverride {
         /// NVR of the override
         nvr: String,
-        /// duration it will still be active
+        /// duration (in days) it should be active
+        #[structopt(long)]
+        duration: u32,
+        /// publicly visible notes
+        #[structopt(long)]
+        notes: String,
+    },
+    /// Create a new buildroot override for builds from an existing update
+    CreateUpdateOverride {
+        /// alias of the update (i.e. "FEDORA-2022-XXXXXXXXXX")
+        alias: String,
+        /// duration (in days) it should be active
         #[structopt(long)]
         duration: u32,
         /// publicly visible notes
@@ -337,6 +348,7 @@ impl BaseCommand {
             ComposeInfo { .. } => false,
             ComposeList { .. } => false,
             CreateOverride { .. } => true,
+            CreateUpdateOverride { .. } => true,
             CreateUpdate { .. } => true,
             EditOverride { .. } => true,
             EditUpdate { .. } => true,
