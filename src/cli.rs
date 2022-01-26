@@ -33,6 +33,9 @@ pub struct BaseCommand {
     /// Ignore password stored in session keyring
     #[structopt(long, short = "k")]
     pub ignore_keyring: bool,
+    /// Make output more verbose
+    #[structopt(long, short = "v")]
+    pub verbose: bool,
     #[structopt(subcommand)]
     pub subcommand: BodhiCommand,
 }
@@ -79,7 +82,7 @@ pub enum BodhiCommand {
         #[structopt(long)]
         notes: String,
     },
-    /// Create a new buildroot override for builds from an existing update
+    /// Create buildroot overrides from an update
     CreateUpdateOverride {
         /// alias of the update (i.e. "FEDORA-2022-XXXXXXXXXX")
         alias: String,

@@ -118,8 +118,10 @@ async fn main() -> Result<(), String> {
     };
 
     let bodhi = if authenticated {
-        println!("Authenticating with bodhi ...");
-        println!("Username: {}", &config.fas.username);
+        if args.verbose {
+            eprintln!("Authenticating with bodhi ...");
+            eprintln!("Username: {}", &config.fas.username);
+        }
 
         let password = if !args.no_store_password {
             get_store_password(args.ignore_keyring)?
@@ -156,8 +158,9 @@ async fn main() -> Result<(), String> {
             }
 
             match bodhi.request(&commenter).await {
-                Ok(_) => {
+                Ok(result) => {
                     println!("Comment created.");
+                    print_server_msgs(&result.caveats);
                     Ok(())
                 },
                 Err(error) => Err(error.to_string()),
