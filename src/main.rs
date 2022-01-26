@@ -135,8 +135,6 @@ async fn main() -> Result<(), String> {
         builder.build().await.map_err(|error| error.to_string())?
     };
 
-    // FIXME: take variant fields by reference!
-    // match &args.subcommand {
     match args.subcommand {
         BodhiCommand::Comment { update, text, karma } => {
             let update: Update = bodhi
