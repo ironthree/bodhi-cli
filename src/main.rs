@@ -140,6 +140,8 @@ async fn main() -> Result<(), String> {
         }
     };
 
+    // FIXME: take variant fields by reference!
+    // match &args.subcommand {
     match args.subcommand {
         BodhiCommand::Comment { update, text, karma } => {
             let update: Update = match bodhi.request(&UpdateIDQuery::new(&update)).await {
@@ -189,17 +191,19 @@ async fn main() -> Result<(), String> {
             let current_date = chrono::Utc::now();
             let expiration_date = (current_date + chrono::Duration::days(duration as i64)).into();
 
-            let builder = OverrideCreator::new(&nvr, &notes, &expiration_date);
+            let creator = OverrideCreator::new(&nvr, &notes, &expiration_date);
 
-            let result: NewOverride = match bodhi.request(&builder).await {
-                Ok(o) => o,
-                Err(error) => return Err(error.to_string()),
+            return match bodhi.request(&creator).await {
+                Ok(result) => {
+                    println!("Successfully created override for: {}", &result.over_ride.nvr);
+                    print_server_msgs(&result.caveats);
+                    Ok(())
+                },
+                Err(error) => {
+                    println!("Failed to create override for {}, aborting.", &nvr);
+                    Err(error.to_string())
+                },
             };
-
-            print_server_msgs(&result.caveats);
-            println!("{}", result.over_ride);
-
-            Ok(())
         },
         BodhiCommand::CreateUpdateOverride { alias, duration, notes } => {
             let update = query_update(&bodhi, &alias).await?;
