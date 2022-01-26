@@ -130,26 +130,19 @@ async fn main() -> Result<(), String> {
         };
 
         builder = builder.authentication(&config.fas.username, &password);
-
-        match builder.build().await {
-            Ok(bodhi) => bodhi,
-            Err(error) => return Err(error.to_string()),
-        }
+        builder.build().await.map_err(|error| error.to_string())?
     } else {
-        match builder.build().await {
-            Ok(bodhi) => bodhi,
-            Err(error) => return Err(error.to_string()),
-        }
+        builder.build().await.map_err(|error| error.to_string())?
     };
 
     // FIXME: take variant fields by reference!
     // match &args.subcommand {
     match args.subcommand {
         BodhiCommand::Comment { update, text, karma } => {
-            let update: Update = match bodhi.request(&UpdateIDQuery::new(&update)).await {
-                Ok(update) => update,
-                Err(error) => return Err(error.to_string()),
-            };
+            let update: Update = bodhi
+                .request(&UpdateIDQuery::new(&update))
+                .await
+                .map_err(|error| error.to_string())?;
 
             let mut commenter = update.comment().text(&text);
 
@@ -157,34 +150,33 @@ async fn main() -> Result<(), String> {
                 commenter = commenter.karma(karma);
             }
 
-            match bodhi.request(&commenter).await {
-                Ok(result) => {
-                    println!("Comment created.");
-                    print_server_msgs(&result.caveats);
-                    Ok(())
-                },
-                Err(error) => Err(error.to_string()),
-            }
+            let comment: NewComment = bodhi.request(&commenter).await.map_err(|error| error.to_string())?;
+
+            println!("Comment created.");
+            print_server_msgs(&comment.caveats);
+            println!("{}", &comment.comment);
+
+            Ok(())
         },
         BodhiCommand::ComposeInfo {
             release,
             request,
             format,
         } => {
-            let result: Compose = match bodhi.request(&ComposeReleaseRequestQuery::new(&release, request)).await {
-                Ok(compose) => compose,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: Compose = bodhi
+                .request(&ComposeReleaseRequestQuery::new(&release, request))
+                .await
+                .map_err(|error| error.to_string())?;
 
             pretty_output(&result, format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
         BodhiCommand::ComposeList { format } => {
-            let result: Vec<Compose> = match bodhi.request(&ComposeQuery::new()).await {
-                Ok(composes) => composes,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: Vec<Compose> = bodhi
+                .request(&ComposeQuery::new())
+                .await
+                .map_err(|error| error.to_string())?;
 
             pretty_outputs(&result, format.unwrap_or(Format::Plain))?;
 
@@ -324,11 +316,9 @@ async fn main() -> Result<(), String> {
                 builder = builder.update_type(update_type);
             };
 
-            let result: NewUpdate = match bodhi.request(&builder).await {
-                Ok(value) => value,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: NewUpdate = bodhi.request(&builder).await.map_err(|error| error.to_string())?;
 
+            println!("Update created.");
             print_server_msgs(&result.caveats);
             println!("{}", result.update);
 
@@ -343,11 +333,9 @@ async fn main() -> Result<(), String> {
                 .expiration_date(&expiration_date)
                 .notes(&notes);
 
-            let result: EditedOverride = match bodhi.request(&editor).await {
-                Ok(value) => value,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: EditedOverride = bodhi.request(&editor).await.map_err(|error| error.to_string())?;
 
+            println!("Override edited.");
             print_server_msgs(&result.caveats);
             println!("{}", result.over_ride);
 
@@ -448,11 +436,9 @@ async fn main() -> Result<(), String> {
                 editor = editor.update_type(update_type);
             }
 
-            let result: EditedUpdate = match bodhi.request(&editor).await {
-                Ok(value) => value,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: EditedUpdate = bodhi.request(&editor).await.map_err(|error| error.to_string())?;
 
+            println!("Update edited.");
             print_server_msgs(&result.caveats);
             println!("{}", result.update);
 
@@ -462,11 +448,9 @@ async fn main() -> Result<(), String> {
             let over_ride = query_override(&bodhi, &nvr).await?;
             let editor = OverrideEditor::from_override(&over_ride).expired(true);
 
-            let result: EditedOverride = match bodhi.request(&editor).await {
-                Ok(value) => value,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: EditedOverride = bodhi.request(&editor).await.map_err(|error| error.to_string())?;
 
+            println!("Override expired.");
             print_server_msgs(&result.caveats);
             println!("{}", result.over_ride);
 
@@ -519,10 +503,10 @@ async fn main() -> Result<(), String> {
                 return Ok(());
             }
 
-            let result: Vec<Override> = match bodhi.paginated_request(&query).await {
-                Ok(overrides) => overrides,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: Vec<Override> = bodhi
+                .paginated_request(&query)
+                .await
+                .map_err(|error| error.to_string())?;
 
             pretty_outputs(&result, format)?;
 
@@ -679,30 +663,30 @@ async fn main() -> Result<(), String> {
                 return Ok(());
             }
 
-            let result: Vec<Update> = match bodhi.paginated_request(&query).await {
-                Ok(updates) => updates,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: Vec<Update> = bodhi
+                .paginated_request(&query)
+                .await
+                .map_err(|error| error.to_string())?;
 
             pretty_outputs(&result, format)?;
 
             Ok(())
         },
         BodhiCommand::ReleaseInfo { release, format } => {
-            let result: Release = match bodhi.request(&ReleaseNameQuery::new(&release)).await {
-                Ok(release) => release,
-                Err(_) => return Err(String::from("Failed to query releases.")),
-            };
+            let result: Release = bodhi
+                .request(&ReleaseNameQuery::new(&release))
+                .await
+                .map_err(|error| error.to_string())?;
 
             pretty_output(&result, format.unwrap_or(Format::Plain))?;
 
             Ok(())
         },
         BodhiCommand::ReleaseList { format } => {
-            let result: Vec<Release> = match bodhi.paginated_request(&ReleaseQuery::new()).await {
-                Ok(releases) => releases,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: Vec<Release> = bodhi
+                .paginated_request(&ReleaseQuery::new())
+                .await
+                .map_err(|error| error.to_string())?;
 
             pretty_outputs(&result, format.unwrap_or(Format::Plain))?;
 
@@ -712,11 +696,9 @@ async fn main() -> Result<(), String> {
             let update: Update = query_update(&bodhi, &alias).await?;
             let editor = UpdateStatusRequester::from_update(&update, request);
 
-            let result: Update = match bodhi.request(&editor).await {
-                Ok(value) => value,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: Update = bodhi.request(&editor).await.map_err(|error| error.to_string())?;
 
+            println!("Update requested for {}.", request);
             println!("{}", result);
 
             Ok(())
@@ -732,11 +714,9 @@ async fn main() -> Result<(), String> {
                 editor = editor.tests(test_refs)
             }
 
-            let result: Update = match bodhi.request(&editor).await {
-                Ok(value) => value,
-                Err(error) => return Err(error.to_string()),
-            };
+            let result: Update = bodhi.request(&editor).await.map_err(|error| error.to_string())?;
 
+            println!("Tests waived.");
             println!("{}", result);
 
             Ok(())
