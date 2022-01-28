@@ -1,3 +1,13 @@
+# Release 2.0.0-beta.2 "Modernist Times" (January 28, 2022)
+
+This release includes a few minor new features and changes:
+
+- add generated bash completions for bodhi-cli
+- add `create-update-overrides` subcommand to create buildroot overrides for all
+  builds in a given update
+- make output of most commands a little easier on the eyes
+- hide some informational output behind a `--verbose` switch
+
 # Release 2.0.0-beta.1 "Modern Times" (January 23, 2022)
 
 Changes:
