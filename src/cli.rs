@@ -1,7 +1,33 @@
+use std::str::FromStr;
+
 use bodhi::*;
 use structopt::StructOpt;
 
-use crate::Format;
+#[derive(Debug)]
+pub enum Format {
+    JSON,
+    Plain,
+}
+
+impl TryFrom<&str> for Format {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Format, String> {
+        match value.to_lowercase().as_str() {
+            "json" => Ok(Format::JSON),
+            "plain" => Ok(Format::Plain),
+            _ => Err(format!("Not a recognised value for format: {}", &value)),
+        }
+    }
+}
+
+impl FromStr for Format {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Format, String> {
+        TryFrom::try_from(s)
+    }
+}
 
 /// bodhi-cli expects a configuration file at ~/.config/fedora.toml, with at
 /// least the following contents:

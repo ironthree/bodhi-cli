@@ -1,36 +1,10 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
 use std::fmt::Display;
 use std::io::Write;
-use std::str::FromStr;
 
 use serde::Serialize;
 
-#[derive(Debug)]
-pub enum Format {
-    JSON,
-    Plain,
-}
-
-impl TryFrom<&str> for Format {
-    type Error = String;
-
-    fn try_from(value: &str) -> Result<Format, String> {
-        match value.to_lowercase().as_str() {
-            "json" => Ok(Format::JSON),
-            "plain" => Ok(Format::Plain),
-            _ => Err(format!("Not a recognised value for format: {}", &value)),
-        }
-    }
-}
-
-impl FromStr for Format {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Format, String> {
-        TryFrom::try_from(s)
-    }
-}
+use crate::cli::Format;
 
 pub fn progress_bar(p: u32, ps: u32) {
     let columns: u32 = match term_size::dimensions() {

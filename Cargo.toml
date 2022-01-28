@@ -5,6 +5,7 @@ license = "MIT OR Apache-2.0"
 
 version = "2.0.0-beta.1"
 edition = "2021"
+rust-version = "1.56.0"
 
 authors = ["Fabio Valentini <decathorpe@gmail.com>"]
 readme = "README.md"
@@ -18,7 +19,7 @@ name = "bodhi-cli"
 path = "src/main.rs"
 
 [dependencies]
-bodhi = "2.0.0-beta.1"
+bodhi = "2.0.0-beta.2"
 chrono = "0.4.10"
 dirs = "3.0.1"
 rpassword = "5"
@@ -29,6 +30,10 @@ structopt = { version = "0.3.8", features = ["color", "suggestions", "wrap_help"
 term_size = "0.3.1"
 tokio = { version = "1.14", features = ["fs", "macros", "rt-multi-thread"] }
 toml = "0.5.5"
+
+[build-dependencies]
+bodhi = "2.0.0-beta.2"
+structopt = "0.3.8"
 
 [profile.release]
 codegen-units = 1
