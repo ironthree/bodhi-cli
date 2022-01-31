@@ -17,6 +17,8 @@ pub use output::*;
 pub mod query;
 pub use query::*;
 
+const USER_AGENT: &str = concat!("bodhi-cli v", env!("CARGO_PKG_VERSION"));
+
 /// This function prompts the user for their FAS password.
 fn read_password() -> String {
     rpassword::prompt_password_stdout("FAS Password: ").expect("Failed to read from console.")
@@ -116,6 +118,8 @@ async fn main() -> Result<(), String> {
         (false, Some(url), Some(login_url)) => BodhiClientBuilder::custom(url.to_owned(), login_url.to_owned()),
         _ => unreachable!(),
     };
+
+    builder = builder.user_agent(USER_AGENT);
 
     let bodhi = if authenticated {
         if args.verbose {
