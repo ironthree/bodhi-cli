@@ -1,3 +1,13 @@
+# Release 2.0.0 "Finally" (February 01, 2022)
+
+This release contains no code changes compared to the previous beta. The only
+changes are some updated crate dependencies (to match the versions that are
+available from Fedora repositories at the time of publishing), and the client
+now uses a custom `bodhi-cli v2.0.0` User-Agent header for HTTP requests.
+
+For a complete list of changes since `v1.1.0`, read the release notes for the
+last two beta releases.
+
 # Release 2.0.0-beta.2 "Modernist Times" (January 28, 2022)
 
 This release includes a few minor new features and changes:
