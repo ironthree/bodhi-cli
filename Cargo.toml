@@ -19,21 +19,21 @@ name = "bodhi-cli"
 path = "src/main.rs"
 
 [dependencies]
-bodhi = "2.0.0-beta.2"
-chrono = "0.4.10"
-dirs = "3.0.1"
-rpassword = "5"
-secret-service = "2.0"
-serde = { version = "1.0.104", features = ["derive"] }
-serde_json = "1.0.44"
-structopt = { version = "0.3.8", features = ["color", "suggestions", "wrap_help"] }
-term_size = "0.3.1"
+bodhi = "2.0.0"
+chrono = "0.4.19"
+dirs = "3.0.2"
+rpassword = "5.0.1"
+secret-service = "2.0.1"
+serde = { version = "1.0.134", features = ["derive"] }
+serde_json = "1.0.78"
+structopt = { version = "0.3.25", features = ["color", "suggestions", "wrap_help"] }
+term_size = "0.3.2"
 tokio = { version = "1.14", features = ["fs", "macros", "rt-multi-thread"] }
-toml = "0.5.5"
+toml = "0.5.8"
 
 [build-dependencies]
-bodhi = "2.0.0-beta.2"
-structopt = "0.3.8"
+bodhi = "2.0.0"
+structopt = "0.3.25"
 
 [profile.release]
 codegen-units = 1
