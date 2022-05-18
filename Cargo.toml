@@ -3,7 +3,7 @@ name = "bodhi-cli"
 description = "bodhi CLI client based on bodhi-rs"
 license = "MIT OR Apache-2.0"
 
-version = "2.0.0"
+version = "2.0.1-dev"
 edition = "2021"
 rust-version = "1.56.0"
 
@@ -19,9 +19,10 @@ name = "bodhi-cli"
 path = "src/main.rs"
 
 [dependencies]
-bodhi = "2.0.0"
+#bodhi = "2.1.0"
+bodhi = { path = "../bodhi-rs" }
 chrono = "0.4.19"
-dirs = "3.0.2"
+dirs = "4"
 rpassword = "5.0.1"
 secret-service = "2.0.1"
 serde = { version = "1.0.134", features = ["derive"] }
@@ -32,7 +33,8 @@ tokio = { version = "1.14", features = ["fs", "macros", "rt-multi-thread"] }
 toml = "0.5.8"
 
 [build-dependencies]
-bodhi = "2.0.0"
+#bodhi = "2.1.0"
+bodhi = { path = "../bodhi-rs" }
 structopt = "0.3.25"
 
 [profile.release]
