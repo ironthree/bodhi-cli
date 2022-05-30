@@ -1,3 +1,9 @@
+# Release 2.0.1 "Optimize" (May 30, 2022)
+
+This release includes only very minor changes, including bumping the `bodhi`
+dependency to `2.0.1` to improve compatibility with future releases of the
+bodhi server (including 6.0.0).
+
 # Release 2.0.0 "Finally" (February 01, 2022)
 
 This release contains no code changes compared to the previous beta. The only
