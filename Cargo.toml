@@ -20,7 +20,7 @@ path = "src/main.rs"
 
 [dependencies]
 bodhi = "2.0.1"
-chrono = "0.4.19"
+chrono = { version = "0.4.19", default-features = false }
 dirs = "4"
 rpassword = "5.0.1"
 secret-service = "2.0.1"
