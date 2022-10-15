@@ -190,7 +190,7 @@ async fn main() -> Result<(), String> {
 
             let creator = OverrideCreator::new(&nvr, &notes, &expiration_date);
 
-            return match bodhi.request(&creator).await {
+            match bodhi.request(&creator).await {
                 Ok(result) => {
                     println!("Successfully created override for: {}", &result.over_ride.nvr);
                     print_server_msgs(&result.caveats);
@@ -200,7 +200,7 @@ async fn main() -> Result<(), String> {
                     println!("Failed to create override for {}, aborting.", &nvr);
                     Err(error.to_string())
                 },
-            };
+            }
         },
         BodhiCommand::CreateUpdateOverride { alias, duration, notes } => {
             let update = query_update(&bodhi, &alias).await?;
