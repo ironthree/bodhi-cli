@@ -21,7 +21,7 @@ const USER_AGENT: &str = concat!("bodhi-cli v", env!("CARGO_PKG_VERSION"));
 
 /// This function prompts the user for their FAS password.
 fn read_password() -> String {
-    rpassword::prompt_password_stdout("FAS Password: ").expect("Failed to read from console.")
+    rpassword::prompt_password("FAS Password: ").expect("Failed to read from console.")
 }
 
 /// This function asks for and stores the password in the session keyring.
