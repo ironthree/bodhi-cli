@@ -1,3 +1,10 @@
+# Release 2.1.0 "Simple" (March 14, 2023)
+
+- Dropped default features from `chrono` to avoid the dependency on version
+  0.1 of the `time` crate.
+- Ported from `structopt` to `clap` version 4.
+- MSRV increased from 1.56.0 to 1.64.0.
+
 # Release 2.0.1 "Optimize" (May 30, 2022)
 
 This release includes only very minor changes, including bumping the `bodhi`
