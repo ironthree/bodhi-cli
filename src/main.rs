@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use bodhi::*;
-use structopt::StructOpt;
+use clap::Parser;
 
 pub mod cli;
 pub use cli::*;
@@ -107,7 +107,7 @@ fn get_store_password(clear: bool) -> Result<String, String> {
 #[allow(clippy::cognitive_complexity)]
 #[tokio::main]
 async fn main() -> Result<(), String> {
-    let args: BaseCommand = BaseCommand::from_args();
+    let args: BaseCommand = BaseCommand::parse();
     let authenticated = args.authenticated();
 
     let config = get_config().await?;

@@ -1,9 +1,9 @@
 use std::str::FromStr;
 
 use bodhi::*;
-use structopt::StructOpt;
+use clap::Parser;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Format {
     JSON,
     Plain,
@@ -40,45 +40,45 @@ impl FromStr for Format {
 /// This username is used for logging in with bodhi for authenticated requests,
 /// and for determining which updates, overrides, and comments the user has
 /// created themselves.
-#[derive(Debug, StructOpt)]
-#[structopt(setting = structopt::clap::AppSettings::DisableHelpSubcommand)]
-#[structopt(verbatim_doc_comment)]
+#[derive(Debug, Parser)]
+#[command(disable_help_subcommand(true))]
+#[clap(verbatim_doc_comment)]
 pub struct BaseCommand {
     /// Use the fedora staging instance of bodhi
-    #[structopt(long)]
+    #[arg(long)]
     pub staging: bool,
     /// Manually specify bodhi server URL
-    #[structopt(long, requires("login_url"), conflicts_with("staging"))]
+    #[arg(long, requires("login_url"), conflicts_with("staging"))]
     pub bodhi_url: Option<String>,
     /// Manually specify OpenID endpoint URL
-    #[structopt(long, requires("bodhi_url"), conflicts_with("staging"))]
+    #[arg(long, requires("bodhi_url"), conflicts_with("staging"))]
     pub login_url: Option<String>,
     /// Don't store password in session keyring
-    #[structopt(long, short = "n")]
+    #[arg(long, short = 'n')]
     pub no_store_password: bool,
     /// Ignore password stored in session keyring
-    #[structopt(long, short = "k")]
+    #[arg(long, short = 'k')]
     pub ignore_keyring: bool,
     /// Make output more verbose
-    #[structopt(long, short = "v")]
+    #[arg(long, short = 'v')]
     pub verbose: bool,
-    #[structopt(subcommand)]
+    #[command(subcommand)]
     pub subcommand: BodhiCommand,
 }
 
 #[allow(clippy::large_enum_variant)]
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub enum BodhiCommand {
     /// Comment on an update
     Comment {
         /// ID of the update to comment on
-        #[structopt(long)]
+        #[arg(long)]
         update: String,
         /// Publicly visible comment text
-        #[structopt(long)]
+        #[arg(long)]
         text: String,
         /// Karma submitted with this comment (-1/0/+1)
-        #[structopt(long)]
+        #[arg(long)]
         karma: Option<Karma>,
     },
     /// Query bodhi for information about a compose
@@ -88,13 +88,13 @@ pub enum BodhiCommand {
         /// request string ("stable" or "testing")
         request: ComposeRequest,
         /// Output format (plain, JSON)
-        #[structopt(long)]
+        #[arg(long)]
         format: Option<Format>,
     },
     /// Query bodhi for running composes
     ComposeList {
         /// Output format (plain, JSON)
-        #[structopt(long)]
+        #[arg(long)]
         format: Option<Format>,
     },
     /// Create a new buildroot override
@@ -102,10 +102,10 @@ pub enum BodhiCommand {
         /// NVR of the override
         nvr: String,
         /// duration (in days) it should be active
-        #[structopt(long)]
+        #[arg(long)]
         duration: u32,
         /// publicly visible notes
-        #[structopt(long)]
+        #[arg(long)]
         notes: String,
     },
     /// Create buildroot overrides from an update
@@ -113,64 +113,64 @@ pub enum BodhiCommand {
         /// alias of the update (i.e. "FEDORA-2022-XXXXXXXXXX")
         alias: String,
         /// duration (in days) it should be active
-        #[structopt(long)]
+        #[arg(long)]
         duration: u32,
         /// publicly visible notes
-        #[structopt(long)]
+        #[arg(long)]
         notes: String,
     },
     /// Create a new update
     CreateUpdate {
         /// Push to stable based on karma
-        #[structopt(long)]
+        #[arg(long)]
         autokarma: Option<bool>,
         /// Push to stable based on time
-        #[structopt(long)]
+        #[arg(long)]
         autotime: Option<bool>,
         /// Bugs fixed by this update
-        #[structopt(long)]
+        #[arg(long)]
         bugs: Option<Vec<u32>>,
         /// Builds that are part of this update
-        #[structopt(long, conflicts_with = "from_tag")]
+        #[arg(long, conflicts_with = "from_tag")]
         builds: Option<Vec<String>>,
         /// Close bugs when pushed to stable
-        #[structopt(long)]
+        #[arg(long)]
         close_bugs: Option<bool>,
         /// Override displayed update name
-        #[structopt(long)]
+        #[arg(long)]
         display_name: Option<String>,
         /// Koji tag to create this update from
-        #[structopt(long, conflicts_with = "builds")]
+        #[arg(long, conflicts_with = "builds")]
         from_tag: Option<String>,
         /// Publicly visible update notes
-        #[structopt(long)]
+        #[arg(long)]
         notes: String,
         /// Require bug feedback for karma to count
-        #[structopt(long)]
+        #[arg(long)]
         require_bugs: Option<bool>,
         /// Require test case feedback for karma to count
-        #[structopt(long)]
+        #[arg(long)]
         require_testcases: Option<bool>,
         /// List of required gating tests
-        #[structopt(long)]
+        #[arg(long)]
         requirements: Option<Vec<String>>,
         /// Update severity
-        #[structopt(long)]
+        #[arg(long)]
         severity: Option<UpdateSeverity>,
         /// Days until it can be pushed to stable
-        #[structopt(long)]
+        #[arg(long)]
         stable_days: Option<u32>,
         /// Karma until it can be pushed to stable
-        #[structopt(long)]
+        #[arg(long)]
         stable_karma: Option<i32>,
         /// Logout / reboot suggestion
-        #[structopt(long)]
+        #[arg(long)]
         suggestion: Option<UpdateSuggestion>,
         /// Karma until it will be unpushed
-        #[structopt(long)]
+        #[arg(long)]
         unstable_karma: Option<i32>,
         /// Type of the update
-        #[structopt(long, name = "type")]
+        #[arg(long, name = "type")]
         update_type: Option<UpdateType>,
     },
     /// Edit an existing buildroot override
@@ -178,10 +178,10 @@ pub enum BodhiCommand {
         /// NVR of the override
         nvr: String,
         /// duration it will still be active
-        #[structopt(long)]
+        #[arg(long)]
         duration: u32,
         /// publicly visible notes
-        #[structopt(long)]
+        #[arg(long)]
         notes: String,
     },
     /// Edit an existing update
@@ -189,52 +189,52 @@ pub enum BodhiCommand {
         /// Alias of the edited update
         alias: String,
         /// Add bugs to this update
-        #[structopt(long)]
+        #[arg(long)]
         add_bugs: Option<Vec<u32>>,
         /// Add builds to this update
-        #[structopt(long)]
+        #[arg(long)]
         add_builds: Option<Vec<String>>,
         /// Push to stable based on karma
-        #[structopt(long)]
+        #[arg(long)]
         autokarma: Option<bool>,
         /// Push to stable based on time
-        #[structopt(long)]
+        #[arg(long)]
         autotime: Option<bool>,
         /// Close bugs when pushed to stable
-        #[structopt(long)]
+        #[arg(long)]
         close_bugs: Option<bool>,
         /// Override displayed update name
-        #[structopt(long)]
+        #[arg(long)]
         display_name: Option<String>,
         /// Publicly visible update notes
-        #[structopt(long)]
+        #[arg(long)]
         notes: Option<String>,
         /// Remove bugs from this update
-        #[structopt(long)]
+        #[arg(long)]
         remove_bugs: Option<Vec<u32>>,
         /// Remove builds from this update
-        #[structopt(long)]
+        #[arg(long)]
         remove_builds: Option<Vec<String>>,
         /// List of required gating tests
-        #[structopt(long)]
+        #[arg(long)]
         requirements: Option<Vec<String>>,
         /// Update severity
-        #[structopt(long)]
+        #[arg(long)]
         severity: Option<UpdateSeverity>,
         /// Days until it can be pushed to stable
-        #[structopt(long)]
+        #[arg(long)]
         stable_days: Option<u32>,
         /// Karma until it can be pushed to stable
-        #[structopt(long)]
+        #[arg(long)]
         stable_karma: Option<i32>,
         /// Logout / reboot suggestion
-        #[structopt(long)]
+        #[arg(long)]
         suggestion: Option<UpdateSuggestion>,
         /// Karma until it will be unpushed
-        #[structopt(long)]
+        #[arg(long)]
         unstable_karma: Option<i32>,
         /// Type of the update
-        #[structopt(long, name = "type")]
+        #[arg(long, name = "type")]
         update_type: Option<UpdateType>,
     },
     /// Expire an existing buildroot override
@@ -245,94 +245,94 @@ pub enum BodhiCommand {
     /// Query bodhi for buildroot overrides
     QueryOverrides {
         /// Query for this build / these builds
-        #[structopt(long)]
+        #[arg(long)]
         builds: Option<Vec<String>>,
         /// Query for expired overrides
-        #[structopt(long)]
+        #[arg(long)]
         expired: Option<bool>,
         /// Output format (plain, JSON)
-        #[structopt(long)]
+        #[arg(long)]
         format: Option<Format>,
         /// Query for this release / these releases
-        #[structopt(long)]
+        #[arg(long)]
         releases: Option<Vec<FedoraRelease>>,
         /// Query for overrides submitted by these users
-        #[structopt(long)]
+        #[arg(long)]
         users: Option<Vec<String>>,
         /// Force long-running queries
-        #[structopt(long, short)]
+        #[arg(long, short)]
         force: bool,
     },
     /// Query bodhi for updates
     QueryUpdates {
         /// update with this alias
-        #[structopt(long)]
+        #[arg(long)]
         alias: Option<String>,
         /// updates associated with these bugs
-        #[structopt(long)]
+        #[arg(long)]
         bugs: Option<Vec<u32>>,
         /// updates associated with these builds
-        #[structopt(long)]
+        #[arg(long)]
         builds: Option<Vec<String>>,
         /// updates for critpath packages
-        #[structopt(long)]
+        #[arg(long)]
         critpath: Option<bool>,
         /// RPM / module / flatpak updates
-        #[structopt(long)]
+        #[arg(long)]
         content_type: Option<ContentType>,
         /// Output format (plain, JSON)
-        #[structopt(long)]
+        #[arg(long)]
         format: Option<Format>,
         /// locked updates
-        #[structopt(long)]
+        #[arg(long)]
         locked: Option<bool>,
         /// updates modified before this date
-        #[structopt(long)]
+        #[arg(long)]
         modified_before: Option<BodhiDate>,
         /// updates modified after this date
-        #[structopt(long)]
+        #[arg(long)]
         modified_since: Option<BodhiDate>,
         /// updates for these packages
-        #[structopt(long)]
+        #[arg(long)]
         packages: Option<Vec<String>>,
         /// pushed updates
-        #[structopt(long)]
+        #[arg(long)]
         pushed: Option<bool>,
         /// updates pushed before this date
-        #[structopt(long)]
+        #[arg(long)]
         pushed_before: Option<BodhiDate>,
         /// updates pushed after this date
-        #[structopt(long)]
+        #[arg(long)]
         pushed_since: Option<BodhiDate>,
         /// updates for these releases
-        #[structopt(long)]
+        #[arg(long)]
         releases: Option<Vec<FedoraRelease>>,
         /// updates with this status request
-        #[structopt(long)]
+        #[arg(long)]
         request: Option<UpdateRequest>,
         /// updates with this severity
-        #[structopt(long)]
+        #[arg(long)]
         severity: Option<UpdateSeverity>,
         /// updates with this status
-        #[structopt(long)]
+        #[arg(long)]
         status: Option<UpdateStatus>,
         /// updates submitted before this date
-        #[structopt(long)]
+        #[arg(long)]
         submitted_before: Option<BodhiDate>,
         /// updates submitted after this date
-        #[structopt(long)]
+        #[arg(long)]
         submitted_since: Option<BodhiDate>,
         /// updates with logout / reboot suggestion
-        #[structopt(long)]
+        #[arg(long)]
         suggestion: Option<UpdateSuggestion>,
         /// updates with this type
-        #[structopt(name = "type", long)]
+        #[arg(name = "type", long)]
         update_type: Option<UpdateType>,
         /// updates submitted by this user
-        #[structopt(long)]
+        #[arg(long)]
         users: Option<Vec<String>>,
         /// Force long-running queries
-        #[structopt(long, short)]
+        #[arg(long, short)]
         force: bool,
     },
     /// Query bodhi for information about a release
@@ -340,13 +340,13 @@ pub enum BodhiCommand {
         /// ID of the release
         release: String,
         /// Output format (plain, JSON)
-        #[structopt(long)]
+        #[arg(long)]
         format: Option<Format>,
     },
     /// Query bodhi for active releases
     ReleaseList {
         /// Output format (plain, JSON)
-        #[structopt(long)]
+        #[arg(long)]
         format: Option<Format>,
     },
     /// Submit an update status request
@@ -363,7 +363,7 @@ pub enum BodhiCommand {
         /// comment submitted with the waiver
         comment: String,
         /// test results to be waived (default: empty / all)
-        #[structopt(long)]
+        #[arg(long)]
         tests: Option<Vec<String>>,
     },
 }
