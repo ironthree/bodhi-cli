@@ -1,3 +1,7 @@
+# Release 2.1.1
+
+- Updated various dependencies.
+
 # Release 2.1.0 "Simple" (March 14, 2023)
 
 - Dropped default features from `chrono` to avoid the dependency on version

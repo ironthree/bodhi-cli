@@ -3,7 +3,7 @@ name = "bodhi-cli"
 description = "bodhi CLI client based on bodhi-rs"
 license = "MIT OR Apache-2.0"
 
-version = "2.1.0"
+version = "2.1.1"
 edition = "2021"
 rust-version = "1.70.0"
 
