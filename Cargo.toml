@@ -24,7 +24,7 @@ chrono = { version = "0.4.19", features = ["clock", "std"], default-features = f
 clap = { version = "4", features = ["derive", "color", "suggestions", "wrap_help"]}
 dirs = "5"
 rpassword = "7"
-secret-service = "2.0.1"
+secret-service = { version = "3", features = ["rt-tokio-crypto-rust"] }
 serde = { version = "1.0.134", features = ["derive"] }
 serde_json = "1.0.78"
 term_size = "0.3.2"
