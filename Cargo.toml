@@ -21,10 +21,10 @@ path = "src/main.rs"
 [dependencies]
 bodhi = "2.0.1"
 chrono = { version = "0.4.19", features = ["clock", "std"], default-features = false }
-clap = { version = "4", features = ["derive", "color", "suggestions", "wrap_help"]}
-dirs = "5"
-rpassword = "7"
-secret-service = { version = "3", features = ["rt-tokio-crypto-rust"] }
+clap = { version = "4.0", features = ["derive", "color", "suggestions", "wrap_help"]}
+dirs = "5.0"
+rpassword = "7.0"
+secret-service = { version = "3.0", features = ["rt-tokio-crypto-rust"] }
 serde = { version = "1.0.134", features = ["derive"] }
 serde_json = "1.0.78"
 terminal_size = "0.3"
@@ -33,8 +33,8 @@ toml = "0.8"
 
 [build-dependencies]
 bodhi = "2.0.1"
-clap = { version = "4", features = ["derive"]}
-clap_complete = "4"
+clap = { version = "4.0", features = ["derive"]}
+clap_complete = "4.0"
 
 [profile.release]
 codegen-units = 1
