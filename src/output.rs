@@ -7,8 +7,8 @@ use serde::Serialize;
 use crate::cli::Format;
 
 pub fn progress_bar(p: u32, ps: u32) {
-    let columns: u32 = match term_size::dimensions() {
-        Some((w, _)) => w as u32,
+    let columns: u32 = match terminal_size::terminal_size() {
+        Some((terminal_size::Width(w), _)) => w as u32,
         None => return,
     };
 
@@ -39,9 +39,9 @@ pub fn print_server_msgs(caveats: &[HashMap<String, String>]) {
     }
 }
 
-pub fn json_pretty_print<T: ?Sized>(input: &T) -> Result<(), String>
+pub fn json_pretty_print<T>(input: &T) -> Result<(), String>
 where
-    T: Serialize,
+    T: Serialize + ?Sized,
 {
     let pretty = match serde_json::to_string_pretty(input) {
         Ok(string) => string,
