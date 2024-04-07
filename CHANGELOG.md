@@ -1,3 +1,7 @@
+# Release 2.1.2
+
+- Ported from the deprecated term_size crate to terminal_size.
+
 # Release 2.1.1
 
 - Updated various dependencies.
