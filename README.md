@@ -1,4 +1,8 @@
-## bodhi CLI client based on bodhi-rs
+## bodhi CLI client based on bodhi-rs (DEPRECATED)
+
+> [!WARNING]
+> This application no longer works as of bodhi-server 8.0.0 due to breaking
+> changes to / removal of the OpenID authentication endpoint.
 
 This CLI client for `bodhi-rs` exposes almost all functionality of the official
 `bodhi` python client, and almost all features of the `bodhi-rs` rust bindings.
